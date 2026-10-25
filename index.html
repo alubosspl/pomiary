@@ -1,0 +1,1336 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pomiary Aluboss</title>
+<script src="config.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Condensed:wght@600;700&family=Roboto+Mono:wght@500&display=swap">
+<style>
+/* Jedna kolumna robocza (telefon u klienta), górny pasek z zakładkami, dolny pasek akcji w formularzu. */
+:root{
+  --bg:#F2F5F8; --surface:#FFFFFF; --ink:#22292A; --muted:#5D6668; --line:#D5DDE4;
+  --accent:#356DA1; --accent-ink:#FFFFFF; --graphite:#353B3B;
+  --tape:#356DA1; --tape-soft:#E3ECF5; --tape-ink:#2A5782;
+  --ok:#1E7A4C; --ok-soft:#DFF3E8; --info:#1F5FA8; --info-soft:#E0ECFA; --warn:#9A5B00; --warn-soft:#FFF0D6; --bad:#B42318;
+  --f-display:"Roboto Condensed","Roboto","Arial Narrow",system-ui,sans-serif;
+  --f-body:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-num:"Roboto Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:8px; color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#14191E; --surface:#1C232A; --ink:#E8ECEF; --muted:#9AA5B0; --line:#2E3842;
+  --accent:#7FAAD6; --accent-ink:#0F1A24; --graphite:#C9CED3; --tape:#7FAAD6; --tape-soft:#1C2B3A; --tape-ink:#BFD6EE;
+  --ok:#5CCB8F; --ok-soft:#173527; --info:#7FB3F0; --info-soft:#17293F; --warn:#F2B44C; --warn-soft:#3A2A10; --bad:#FF7B6E; color-scheme:dark}}
+*{box-sizing:border-box}
+html{padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.45}
+.wrap{max-width:780px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+
+.top{position:sticky;top:0;z-index:5;background:var(--surface);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:10px 12px;flex-wrap:wrap;padding-block:10px}
+.brand{display:flex;align-items:baseline;gap:8px;margin-right:auto}
+.brand b{color:var(--graphite);font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:.08em}
+.brand span{font-family:var(--f-display);font-weight:600;font-size:15px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase}
+.tape{height:4px;background:var(--tape)}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:3px;border-radius:999px;flex-wrap:wrap}
+.tabs button{border:0;background:transparent;color:var(--muted);font:600 15px var(--f-body);padding:7px 13px;border-radius:999px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--accent);color:var(--accent-ink)}
+
+main{padding-block:18px 120px}
+h1{font-family:var(--f-display);font-weight:700;font-size:28px;line-height:1.1;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:700;font-size:20px;letter-spacing:.03em;text-transform:uppercase;margin:0}
+h3{font-family:var(--f-display);font-weight:600;font-size:17px;margin:0}
+.muted{color:var(--muted)}
+.banner{background:var(--info-soft);color:var(--info);border-radius:var(--r);padding:10px 12px;font-size:14px;margin-bottom:14px}
+
+.list-head{display:flex;gap:10px 12px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.list-head h1{margin-right:auto}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center}
+.search{flex:1 1 220px;min-width:0}
+.rows{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.row{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:start}
+.row:last-child{border-bottom:0}
+.row .open{border:0;background:none;padding:0;text-align:left;font:600 16px var(--f-body);color:var(--ink);cursor:pointer;min-width:0;overflow-wrap:anywhere}
+.row .open:hover{text-decoration:underline}
+.row .meta{grid-column:1/-1;display:flex;gap:6px 10px;flex-wrap:wrap;font-size:14px;color:var(--muted);align-items:center}
+.row select{width:auto;min-height:34px;padding:4px 8px;font-size:14px;font-weight:600;border-radius:999px}
+.chip{display:inline-block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;background:var(--bg);color:var(--muted);border:1px solid var(--line)}
+.s-0{background:var(--warn-soft);color:var(--warn);border-color:transparent}
+.s-1{background:var(--info-soft);color:var(--info);border-color:transparent}
+.s-2{background:var(--ok-soft);color:var(--ok);border-color:transparent}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:var(--r);padding:26px 20px;display:flex;flex-direction:column;gap:10px;align-items:flex-start}
+.empty p{margin:0;max-width:60ch}
+.filters{display:flex;gap:6px;flex-wrap:wrap}
+.filters button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font:600 14px var(--f-body);cursor:pointer}
+.filters button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+
+.form-head{display:flex;flex-direction:column;gap:12px;margin-bottom:6px}
+.form-head .t{display:flex;gap:8px 14px;align-items:baseline;flex-wrap:wrap}
+.form-head h1{margin-right:auto}
+.dirty{font-size:13px;color:var(--warn)}
+.statusbar{display:flex;flex-direction:column;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px}
+.statusbar .seg span{font-weight:600}
+.statusbar .seg label:nth-child(1) input:checked+span{background:var(--warn-soft);color:var(--warn);border-color:var(--warn)}
+.statusbar .seg label:nth-child(2) input:checked+span{background:var(--info-soft);color:var(--info);border-color:var(--info)}
+.statusbar .seg label:nth-child(3) input:checked+span{background:var(--ok-soft);color:var(--ok);border-color:var(--ok)}
+section.blk{padding-block:20px;border-top:1px solid var(--line);display:flex;flex-direction:column;gap:14px}
+.sec-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.sec-head .muted{font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 14px}
+.grid.g3{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.fld{display:flex;flex-direction:column;gap:5px;min-width:0}
+.lbl{font-size:13px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.lbl em{font-style:normal;font-family:var(--f-num);color:var(--tape-ink);background:var(--tape-soft);padding:0 5px;border-radius:4px;margin-right:4px;letter-spacing:0}
+.hint{font-size:13px;color:var(--muted)}
+input[type=text],input[type=tel],input[type=email],input[type=date],input[type=time],input[type=number],input[type=search],select,textarea{
+  width:100%;min-width:0;font:400 16px var(--f-body);color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:10px 11px;min-height:44px}
+input[type=number]{font-family:var(--f-num);font-variant-numeric:tabular-nums}
+textarea{min-height:90px;resize:vertical}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.inp-u{position:relative;display:block}
+.inp-u input{padding-right:46px}
+.inp-u i{position:absolute;right:11px;top:50%;transform:translateY(-50%);font-style:normal;font-family:var(--f-num);font-size:13px;color:var(--muted);pointer-events:none}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative;display:inline-flex}
+.seg input{position:absolute;opacity:0;inset:0;margin:0;cursor:pointer}
+.seg span{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:9px 13px;font-size:15px;min-height:42px;display:inline-flex;align-items:center}
+.seg input:checked+span{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.seg label:focus-within span{outline:2px solid var(--accent);outline-offset:1px}
+.check{display:flex;gap:10px;align-items:center;font-size:16px;cursor:pointer;min-height:40px}
+.check input{width:22px;height:22px;accent-color:var(--accent);flex:none}
+.checks{display:flex;flex-wrap:wrap;gap:0 22px}
+
+.scheme{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px;align-items:start}
+@media (max-width:620px){.scheme{grid-template-columns:1fr}}
+.scheme svg{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.sv-wall{fill:var(--line)} .sv-ground{stroke:var(--muted);stroke-width:2}
+.sv-roof{stroke:var(--accent);stroke-width:5;stroke-linecap:round;fill:none}
+.sv-lam{stroke:var(--accent);stroke-width:3;stroke-linecap:round}
+.sv-post{fill:var(--accent)}
+.sv-dim{stroke:var(--tape);stroke-width:2;fill:none}
+.sv-t{fill:var(--ink);font-family:var(--f-num);font-size:12px}
+.sv-l{fill:var(--tape-ink);font-family:var(--f-num);font-size:12px;font-weight:500}
+.calc{background:var(--tape-soft);border-radius:var(--r);padding:12px 14px;display:grid;grid-template-columns:1fr 1fr;gap:10px 14px}
+.calc div{display:flex;flex-direction:column;min-width:0}
+.calc small{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--tape-ink);font-weight:600}
+.calc b{font-family:var(--f-num);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums}
+.calc .wide{grid-column:1/-1}
+.warn{font-size:14px;color:var(--warn);background:var(--warn-soft);padding:8px 10px;border-radius:6px}
+
+.card{border:1px solid var(--line);background:var(--surface);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:12px}
+.card-head{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+
+.btn{font:600 15px var(--f-body);border-radius:6px;padding:10px 16px;min-height:44px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn.danger{color:var(--bad);border-color:currentColor;background:transparent}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:14px}
+
+.frsvg svg{width:100%;height:auto;display:block;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.fr-post{fill:var(--accent)} .fr-beam{fill:var(--accent)} .fr-beam2{fill:var(--tape)}
+.fr-fix{fill:var(--info-soft);stroke:var(--info);stroke-width:1}
+.fr-glass{fill:var(--info-soft)} .fr-gl{stroke:var(--info);stroke-width:1.2}
+.fr-frame{fill:none;stroke:var(--muted);stroke-width:2}
+.fr-zip{fill:var(--bg)} .fr-zl{stroke:var(--muted);stroke-width:1}
+.fr-open{fill:none;stroke:var(--line);stroke-width:1;stroke-dasharray:4 3}
+.fr-n{fill:var(--ink);font-family:var(--f-num);font-size:11px}
+.fr-w{fill:var(--tape-ink);font-family:var(--f-num);font-size:10px}
+.frsum{font-size:14px;display:flex;gap:6px 14px;flex-wrap:wrap}
+.frsum b{font-family:var(--f-num);font-weight:500}
+.frpola{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
+.pole{border:1px solid var(--line);border-radius:6px;padding:10px 12px;display:flex;flex-direction:column;gap:10px;background:var(--bg)}
+.pole h4{margin:0;font:600 14px var(--f-body);letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.ph{position:relative;aspect-ratio:1;max-width:100%;border-radius:6px;overflow:hidden;background:var(--bg);border:1px solid var(--line)}
+.ph img{width:100%;height:100%;object-fit:cover;display:block;background:#fff}
+.ph a{position:absolute;left:4px;bottom:4px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:2px 6px;border-radius:4px;text-decoration:none}
+.ph button{position:absolute;top:4px;right:4px;border:0;border-radius:999px;width:30px;height:30px;background:rgba(0,0,0,.6);color:#fff;font-size:16px;cursor:pointer}
+.upl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sk{display:flex;flex-direction:column;gap:8px}
+.sk-tools{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sk-tools button{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:8px 12px;font:600 14px var(--f-body);min-height:40px;cursor:pointer}
+.sk-tools button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.sk-tools input{width:130px;min-height:40px}
+.sk-sw{width:28px;height:28px;border-radius:999px;border:2px solid var(--line);cursor:pointer;padding:0;min-height:0}
+.sk-sw[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:2px}
+.sk canvas{width:100%;height:440px;max-width:100%;background:#fff;border:1px solid var(--line);border-radius:var(--r);touch-action:none;display:block}
+.brand .who{font:400 13px var(--f-body);letter-spacing:0;text-transform:none;color:var(--muted);overflow-wrap:anywhere}
+.viz{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.viz svg{width:100%;height:auto;display:block}
+.vizbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.auth{position:fixed;inset:0;z-index:50;background:var(--bg);overflow:auto;padding-top:env(safe-area-inset-top,0px)}
+.auth-in{max-width:420px;margin:0 auto;padding:48px max(20px,env(safe-area-inset-left,0px)) 40px;display:flex;flex-direction:column;gap:16px}
+.auth-logo{font-family:var(--f-display);font-weight:700;font-size:34px;letter-spacing:.14em}
+.auth-sub{font-family:var(--f-display);font-weight:600;font-size:16px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-top:-12px}
+.auth form{display:flex;flex-direction:column;gap:12px}
+.auth .err{color:var(--bad);font-size:14px;min-height:1em}
+.auth-bar{height:4px;background:var(--tape);margin:4px 0 8px}
+.team-row{display:grid;grid-template-columns:1fr auto;gap:6px 12px;padding:12px 14px;border-bottom:1px solid var(--line);align-items:center}
+.team-row:last-child{border-bottom:0}
+.team-row .meta{grid-column:1/-1;display:flex;gap:8px;flex-wrap:wrap;align-items:center;font-size:14px;color:var(--muted)}
+.off{opacity:.55}
+.sw{position:relative;display:inline-flex;align-items:center;gap:8px;font-size:14px;cursor:pointer}
+.sw input{width:22px;height:22px;accent-color:var(--ok)}
+.viewer{position:fixed;inset:0;z-index:40;background:rgba(10,12,14,.92);display:flex;flex-direction:column;padding:calc(env(safe-area-inset-top,0px) + 10px) 10px calc(env(safe-area-inset-bottom,0px) + 10px)}
+.viewer img{flex:1;min-height:0;object-fit:contain;width:100%;background:transparent}
+.viewer button{align-self:flex-end;background:#fff;color:#111;border:0;border-radius:999px;padding:8px 16px;font:600 15px var(--f-body);margin-bottom:8px}
+.ph img[data-ph]{background:var(--bg)}
+.offline{background:var(--warn-soft);color:var(--warn);border-radius:var(--r);padding:8px 12px;font-size:14px;margin-bottom:12px}
+.mailwrap{display:flex;flex-direction:column;gap:10px}
+.mailprev{background:#EEF0F2;border:1px solid var(--line);border-radius:var(--r);padding:14px 8px;overflow-x:auto}
+.mailbtns{display:flex;gap:8px;flex-wrap:wrap}
+.subj{font-family:var(--f-num);font-size:14px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:8px 10px;overflow-wrap:anywhere}
+
+.actions{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.actions .wrap{display:flex;gap:8px;flex-wrap:wrap;padding-block:10px;align-items:center}
+.actions .grow{margin-right:auto}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;font-weight:600;z-index:20;max-width:calc(100% - 32px)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>ALUBOSS</b><span>Pomiary</span><span class="who" id="who"></span></div>
+    <div class="tabs" role="tablist">
+      <button id="tabList" role="tab" aria-selected="true">Lista</button>
+      <button id="tabZad" role="tab" aria-selected="false">Zadaszenie + zabudowa</button>
+      <button id="tabZab" role="tab" aria-selected="false">Zabudowa</button>
+      <button id="tabPerg" role="tab" aria-selected="false">Pergola lamelowa</button>
+    </div>
+  </div>
+  <div class="tape" aria-hidden="true"></div>
+</header>
+
+<main class="wrap">
+  <div id="viewList">
+    <div id="queueInfo" class="offline" hidden></div>
+    <div class="list-head"><h1>Pomiary klientów</h1><button class="btn sm" id="btnRefresh" type="button">Odśwież</button><button class="btn sm" id="btnTeam" type="button" hidden>Zespół</button><button class="btn sm" id="btnAccount" type="button">Konto</button></div>
+    <div class="tools">
+      <input id="q" class="search" type="search" placeholder="Szukaj: nazwisko, miejscowość, telefon">
+      <div class="filters" id="filters"></div>
+    </div>
+    <div id="rows" class="rows" hidden></div>
+    <div id="empty" class="empty">
+      <h3 id="emptyTitle">Wczytywanie pomiarów…</h3>
+      <p class="muted">Tu pojawi się lista klientów: nazwisko, miejscowość, data, pomiarowiec, opiekun i status. Status zmienisz od razu na liście albo w karcie pomiaru.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" data-new="zadaszenie">Nowy pomiar zadaszenia</button><button class="btn" data-new="zabudowa">Nowa zabudowa</button><button class="btn" data-new="pergola">Nowa pergola lamelowa</button></div>
+    </div>
+    <p class="hint" style="margin-top:14px">Pomiary zapisują się we wspólnym Arkuszu Google Aluboss. Bez internetu pomiar czeka w telefonie i wysyła się sam, gdy wróci zasięg.</p>
+  </div>
+
+  <div id="viewTeam" hidden>
+    <div class="list-head"><h1>Zespół i dostęp</h1><button class="btn sm" type="button" data-back>Wróć</button></div>
+    <p class="hint" style="margin:0 0 12px">Odznacz „Aktywny”, aby od razu odebrać dostęp. Osoba zostanie wylogowana na wszystkich telefonach.</p>
+    <div class="rows" id="teamRows"></div>
+    <section class="blk">
+      <div class="sec-head"><h2 id="teamFormTitle">Dodaj osobę</h2></div>
+      <div class="grid">
+        <label class="fld" for="t_imie"><span class="lbl">Imię (jak w aplikacji)</span><input id="t_imie" type="text" list="t_names" placeholder="np. Bartłomiej"></label>
+        <label class="fld" for="t_email"><span class="lbl">E-mail (login)</span><input id="t_email" type="email" autocapitalize="none" placeholder="imie@gmail.com"></label>
+        <label class="fld" for="t_haslo"><span class="lbl">Hasło</span><input id="t_haslo" type="text" autocapitalize="none" placeholder="min. 6 znaków"></label>
+        <label class="fld" for="t_rola"><span class="lbl">Rola</span><select id="t_rola"><option>Pracownik</option><option>Administrator</option></select></label>
+      </div>
+      <datalist id="t_names"></datalist>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" type="button" id="t_save">Zapisz osobę</button><button class="btn" type="button" id="t_clear">Wyczyść</button></div>
+      <span class="hint">Przekaż pracownikowi e-mail i hasło. Zmieni je sobie w zakładce „Konto”. E-mail służy też do zaproszeń w kalendarzu.</span>
+    </section>
+  </div>
+
+  <div id="viewAccount" hidden>
+    <div class="list-head"><h1>Moje konto</h1><button class="btn sm" type="button" data-back>Wróć</button></div>
+    <p id="accInfo" class="muted" style="margin:0 0 12px"></p>
+    <section class="blk" style="border-top:0">
+      <div class="sec-head"><h2>Zmiana hasła</h2></div>
+      <div class="grid">
+        <label class="fld" for="a_old"><span class="lbl">Obecne hasło</span><input id="a_old" type="password"></label>
+        <label class="fld" for="a_new"><span class="lbl">Nowe hasło</span><input id="a_new" type="password" placeholder="min. 6 znaków"></label>
+      </div>
+      <div><button class="btn pri" type="button" id="a_save">Zmień hasło</button></div>
+    </section>
+    <section class="blk"><div><button class="btn danger" type="button" id="btnLogout">Wyloguj</button></div></section>
+  </div>
+
+  <form id="viewForm" hidden autocomplete="off">
+    <div class="form-head">
+      <div class="t"><h1 id="formTitle">Nowy pomiar</h1><span id="formType" class="chip"></span><span id="dirty" class="dirty" hidden>Niezapisane zmiany</span></div>
+      <div class="statusbar" id="statusSlot"></div>
+    </div>
+    <div id="formBody"></div>
+  </form>
+</main>
+
+<div class="actions" id="actions" hidden>
+  <div class="wrap">
+    <button class="btn danger sm grow" id="btnDel" type="button" hidden>Usuń pomiar</button>
+    <span class="grow" id="delSpacer"></span>
+    <button class="btn" id="btnMail" type="button">Mail do klienta</button>
+    <button class="btn pri" id="btnSave" type="button">Zapisz pomiar</button>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+<div id="viewer" class="viewer" hidden><button type="button" id="viewerClose">Zamknij</button><img id="viewerImg" alt="Podgląd zdjęcia"></div>
+<div id="auth" class="auth">
+  <div class="auth-in">
+    <div class="auth-logo">ALUBOSS</div><div class="auth-sub">Pomiary</div><div class="auth-bar"></div>
+    <form id="fServer" hidden>
+      <h2>Adres serwera</h2>
+      <p class="muted" style="margin:0">Wklej adres API z Apps Script (kończy się na /exec). Robi się to raz na telefonie.</p>
+      <label class="fld" for="s_url"><span class="lbl">Adres API</span><input id="s_url" type="url" autocapitalize="none" placeholder="https://script.google.com/macros/s/.../exec"></label>
+      <button class="btn pri" type="submit">Dalej</button><div class="err" id="s_err"></div>
+    </form>
+    <form id="fSetup" hidden>
+      <h2>Pierwsze uruchomienie</h2>
+      <p class="muted" style="margin:0">Załóż konto administratora. Administrator dodaje pracowników i odbiera dostęp.</p>
+      <label class="fld" for="su_imie"><span class="lbl">Imię</span><input id="su_imie" type="text" autocomplete="name"></label>
+      <label class="fld" for="su_email"><span class="lbl">E-mail</span><input id="su_email" type="email" autocapitalize="none" autocomplete="username"></label>
+      <label class="fld" for="su_haslo"><span class="lbl">Hasło</span><input id="su_haslo" type="password" autocomplete="new-password" placeholder="min. 6 znaków"></label>
+      <button class="btn pri" type="submit">Utwórz konto administratora</button><div class="err" id="su_err"></div>
+    </form>
+    <form id="fLogin" hidden>
+      <h2>Zaloguj się</h2>
+      <label class="fld" for="l_email"><span class="lbl">E-mail</span><input id="l_email" type="email" autocapitalize="none" autocomplete="username"></label>
+      <label class="fld" for="l_haslo"><span class="lbl">Hasło</span><input id="l_haslo" type="password" autocomplete="current-password"></label>
+      <button class="btn pri" type="submit" id="l_btn">Zaloguj</button><div class="err" id="l_err"></div>
+      <span class="hint">Nie masz konta? Poproś administratora (np. Karolinę) o dodanie Cię w zakładce „Zespół”.</span>
+    </form>
+    <p class="muted" id="authWait">Łączenie…</p>
+  </div>
+</div>
+
+<script>
+(function(){
+"use strict";
+/* ===== Słowniki Aluboss ===== */
+const POMIAROWCY=["Bartłomiej","Łukasz","Grzegorz","Mikołaj"];
+const OPIEKUNOWIE=["Marlena","Wiktoria","Madzia","Karolina"];
+const STATUSY=["Zaplanowany","Pomiar wykonany","Mail wysłany"];
+const KOLORY=["Antracyt struktura RAL 7016ST","Srebrno-szary struktura RAL 9006ST","Biały gładki RAL 9010","Sepia-brąz struktura RAL 8014ST","Inny kolor RAL (za dopłatą)"];
+const POKRYCIA=["Poliwęglan 16 mm mleczny","Poliwęglan 16 mm przeźroczysty","Poliwęglan 16 mm grafit","Szkło VSG 44.2 przeźroczyste","Szkło VSG 44.2 mleczne","Szkło VSG 44.2 grafit"];
+const ZAB_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Screen ZIP"];
+const PERG_BOKI=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Panel aluminiowy","Screen ZIP"];
+const BIURO={tel:"78 472 88 66",mail:"dzialhandlowy@aluboss.pl",www:"aluboss.pl"};
+const STRONY_ZAD=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa",klin:false},{k:"lewa",n:"Bok lewy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true},{k:"prawa",n:"Bok prawy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true}];
+const STRONY_PERG=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa"},{k:"lewa",n:"Bok lewy",a:"Wys. lewa",b:"Wys. prawa"},{k:"prawa",n:"Bok prawy",a:"Wys. lewa",b:"Wys. prawa"},{k:"tyl",n:"Tył",a:"Wys. lewa",b:"Wys. prawa"}];
+const TYP_NAZWA={zadaszenie:"Zadaszenie + zabudowa",zabudowa:"Zabudowa",pergola:"Pergola lamelowa"};
+const ROL_TYPY=["ZIP pionowy","Roleta dachowa veranda (na dachu)","Roleta podszybowa veranda (pod dachem)"];
+const RAL_HEX={"7016":"#383E42","9006":"#A1A1A0","9010":"#F1ECE1","8014":"#4A3526"};
+const SLUP_MM=110;
+const belkaSlupy=A=>(num(A)||0)>7000?3:2; // belka: do 7 m – 2 słupy, 8–14 m – 3 słupy // słup 11 × 11 cm
+const MONTAZ=["Na beton","Profil U"];
+const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Screen ZIP","Bez zabudowy (wejście)"];
+const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Screen ZIP"];
+const KLIN_MAT=["Szkło VSG 8,76 mm","Poliwęglan 16 mm","Panel aluminiowy"];
+const PILOT=["1-kanałowy","5-kanałowy","15-kanałowy","Inny"];
+const szt=n=>`${fmt(num(n))} szt.`;
+const KEY="aluboss-pomiary-v2", DRAFT="aluboss-pomiar-szkic-v2";
+
+/* ===== Pomocnicze ===== */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fid=k=>"f_"+k.replace(/\./g,"_");
+const num=v=>{const n=parseFloat(String(v??"").replace(",","."));return isFinite(n)?n:null};
+const fmt=(n,d=0)=>n==null?"—":n.toLocaleString("pl-PL",{minimumFractionDigits:d,maximumFractionDigits:d});
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const plDate=s=>s?new Date(s+"T12:00").toLocaleDateString("pl-PL",{day:"numeric",month:"long",year:"numeric"}):"";
+function getP(o,p){return p.split(".").reduce((t,k)=>t==null?undefined:t[k],o)}
+function setP(o,p,v){const ks=p.split(".");let t=o;for(let i=0;i<ks.length-1;i++){if(t[ks[i]]==null)t[ks[i]]={};t=t[ks[i]]}t[ks[ks.length-1]]=v}
+const clone=o=>JSON.parse(JSON.stringify(o));
+
+/* ===== Pola ===== */
+const mm=(k,l,h,tag)=>`<label class="fld" for="${fid(k)}"><span class="lbl">${tag?`<em>${tag}</em>`:""}${l}</span><span class="inp-u"><input id="${fid(k)}" data-k="${k}" type="number" inputmode="numeric" min="0" step="1"><i>mm</i></span>${h?`<span class="hint">${h}</span>`:""}</label>`;
+const cnt=(k,l)=>`<label class="fld" for="${fid(k)}"><span class="lbl">${l}</span><input id="${fid(k)}" data-k="${k}" type="number" inputmode="numeric" min="0" step="1"></label>`;
+const txt=(k,l,t="text",ph="")=>`<label class="fld" for="${fid(k)}"><span class="lbl">${l}</span><input id="${fid(k)}" data-k="${k}" type="${t}" placeholder="${esc(ph)}"></label>`;
+const sel=(k,l,opts)=>`<label class="fld" for="${fid(k)}"><span class="lbl">${l}</span><select id="${fid(k)}" data-k="${k}"><option value="">— wybierz —</option>${opts.map(o=>`<option>${esc(o)}</option>`).join("")}</select></label>`;
+const seg=(k,l,opts)=>`<div class="fld" role="radiogroup" aria-label="${esc(l)}"><span class="lbl">${l}</span><div class="seg">${opts.map((o,i)=>`<label><input type="radio" id="${fid(k)}_${i}" name="${fid(k)}" data-k="${k}" value="${esc(o)}"><span>${esc(o)}</span></label>`).join("")}</div></div>`;
+const chk=(k,l)=>`<label class="check" for="${fid(k)}"><input type="checkbox" id="${fid(k)}" data-k="${k}"><span>${l}</span></label>`;
+
+function extraFields(p){return `
+   <div class="grid g3" data-show-has="${p}.typ~przesuwne">
+    ${cnt(p+".skrzydla","Liczba skrzydeł")}
+    ${seg(p+".parkowanie","Strona parkowania skrzydeł",["Lewa","Prawa","Obie strony"])}
+   </div>
+   <div data-show-has="${p}.typ~przesuwne">${chk(p+".maskownica","Maskownica do szyb przesuwnych")}</div>
+   <div data-show-has="${p}.typ~ZIP">${seg(p+".strona","Strona silnika ZIP",["Lewa","Prawa"])}</div>
+   <div class="grid g3" data-show-has="${p}.typ~Panel">${sel(p+".kolorPanelu","Kolor paneli aluminiowych",KOLORY)}<div data-show-has="${p}.kolorPanelu~Inny">${txt(p+".kolorPaneluInny","Numer RAL paneli","text","np. RAL 7022")}</div></div>
+   <div data-show-has="${p}.typ~^Ściana stała$">${seg(p+".material","Wypełnienie ściany stałej",["Szkło VSG 8,76 mm","Poliwęglan 16 mm"])}</div>`}
+function sideCard(pre,s,types,withKlin){const p=pre+"."+s.k;return `<div class="card">
+  <div class="card-head"><h3>${s.n}</h3>${chk(p+".on","Zabudowa tej strony")}</div>
+  <div data-show="${p}.on" style="display:flex;flex-direction:column;gap:12px">
+   <div class="grid g3">
+    ${sel(p+".typ","Rodzaj",types)}
+    ${mm(p+".szer","Szerokość")}
+    ${mm(p+".wys","Wysokość")}
+   </div>
+   ${extraFields(p)}
+   ${withKlin?`${chk(p+".klin","Trójkąt nad ścianą (pod dachem)")}<div data-show="${p}.klin" class="grid g3">${sel(p+".klinTyp","Z czego trójkąt",KLIN_MAT)}</div>`:""}
+  </div></div>`}
+
+function headSection(){return `
+<section class="blk" style="border-top:0">
+  ${seg("wykonanie","Wykonanie",["Standard","Na wymiar"])}
+  <div class="sec-head"><h2>Klient i pomiar</h2></div>
+  <div class="grid">
+    ${txt("klient.imie","Imię i nazwisko")}
+    ${txt("klient.telefon","Telefon","tel")}
+    ${txt("klient.email","E-mail klienta","email")}
+    ${txt("klient.adres","Adres montażu")}
+    ${txt("klient.miasto","Miejscowość, kod")}
+    ${txt("dataPomiaru","Data pomiaru","date")}
+    ${txt("godzina","Godzina","time")}
+    ${sel("czas","Czas pomiaru",["30 min","1 h","1,5 h","2 h"])}
+  </div>
+  <span class="hint" id="calInfo">Pomiar z datą trafi do kalendarza „Pomiary Aluboss”. Pomiarowiec dostanie zaproszenie.</span>
+  <div class="grid">
+    ${seg("pomiarowiec","Pomiar wykonuje",POMIAROWCY)}
+    ${seg("opiekun","Opiekun klienta",OPIEKUNOWIE)}
+  </div>
+</section>`}
+
+function tailSection(){return `
+<section class="blk">
+  <div class="sec-head"><h2>Rolety veranda i ZIP</h2><span class="muted">Jedna pozycja na każdą roletę</span></div>
+  <div id="rolList" style="display:flex;flex-direction:column;gap:12px"></div>
+  <datalist id="rolMiejsca"><option value="Przód"></option><option value="Lewy przód"></option><option value="Prawy przód"></option><option value="Bok lewy"></option><option value="Bok prawy"></option><option value="Dach"></option></datalist>
+  <div><button type="button" class="btn sm" id="btnAddRol">+ Dodaj roletę / ZIP</button></div>
+</section>
+<section class="blk">
+  <div class="sec-head"><h2>Warunki montażu</h2></div>
+  <div class="grid">
+    ${sel("warunki.podloze","Podłoże pod słupy",["Kostka brukowa","Płyta betonowa","Płytki tarasowe","Deska / deck","Grunt (trawa, ziemia)"])}
+    ${seg("warunki.prad","Prąd przy tarasie",["Jest","Brak","Do doprowadzenia"])}
+  </div>
+  <div class="grid" data-show-has="warunki.prad~Jest|doprowadzenia">
+    ${seg("warunki.pradStrona","Prąd z której strony (patrząc od ogrodu)",["Lewa","Prawa","Ze ściany budynku"])}
+    ${txt("warunki.pradGdzie","Gdzie dokładnie","text","np. puszka przy oknie kuchennym, 1,2 m od narożnika")}
+  </div>
+  <div class="checks">${chk("warunki.fundamenty","Potrzebne stopy fundamentowe")}${chk("warunki.dostep","Utrudniony dojazd lub dostęp dla ekipy")}</div>
+  ${txt("warunki.przeszkody","Przeszkody na ścianie i tarasie","text","rynny, parapety, lampy, rolety, okna")}
+</section>
+<section class="blk" data-show-has="wykonanie~wymiar">
+  <div class="sec-head"><h2>Szkic dla technika</h2><span class="muted">Rysuj palcem lub rysikiem. Linia prosta przyciąga się do pionu i poziomu</span></div>
+  <div class="sk">
+    <div class="sk-tools">
+      <button type="button" data-tool="pen" aria-pressed="true">Ołówek</button>
+      <button type="button" data-tool="line" aria-pressed="false">Linia</button>
+      <button type="button" data-tool="text" aria-pressed="false">Wymiar / tekst</button>
+      <input type="text" id="skText" placeholder="np. 2350" aria-label="Tekst do wstawienia">
+      <button type="button" class="sk-sw" data-color="#1B2127" aria-pressed="true" style="background:#1B2127" aria-label="Kolor czarny"></button>
+      <button type="button" class="sk-sw" data-color="#C62828" aria-pressed="false" style="background:#C62828" aria-label="Kolor czerwony"></button>
+      <button type="button" class="sk-sw" data-color="#1F5FA8" aria-pressed="false" style="background:#1F5FA8" aria-label="Kolor niebieski"></button>
+    </div>
+    <canvas id="skCanvas" aria-label="Pole szkicu"></canvas>
+    <div class="sk-tools">
+      <button type="button" id="skUndo">Cofnij</button>
+      <button type="button" id="skGrid" aria-pressed="true">Kratka</button>
+      <button type="button" id="skClear">Wyczyść</button>
+      <button type="button" class="btn pri sm" id="skSave">Dodaj szkic do pomiaru</button>
+    </div>
+    <div id="sketches" class="photos"></div>
+  </div>
+</section>
+<section class="blk">
+  <div class="sec-head"><h2>Zdjęcia</h2><span class="muted">Ściana, taras, narożniki, przeszkody</span></div>
+  <div class="upl"><input type="file" id="photoIn" accept="image/*" multiple><span id="photoMsg" class="hint"></span></div>
+  <div id="photos" class="photos"></div>
+</section>
+<section class="blk">
+  <div class="sec-head"><h2>Uwagi</h2></div>
+  <label class="fld" for="f_uwagi"><span class="lbl">Uwagi wewnętrzne (nie trafiają do klienta)</span><textarea id="f_uwagi" data-k="uwagi" placeholder="Np. trudne kotwienie w gazobetonie, klient porównuje oferty"></textarea></label>
+  <label class="fld" for="f_uwagiKlient"><span class="lbl">Informacja dla klienta (trafia do maila)</span><textarea id="f_uwagiKlient" data-k="uwagiKlient" placeholder="Np. przygotujemy dwa warianty: poliwęglan mleczny i szkło VSG 44.2"></textarea></label>
+</section>
+<section class="blk" id="mailSec">
+  <div class="sec-head"><h2>Mail do klienta</h2><span class="muted">Podgląd wiadomości z podsumowaniem pomiaru</span></div>
+  <div class="mailwrap">
+    <div><span class="lbl">Temat</span><div class="subj" id="mailSubj"></div></div>
+    <div class="mailprev"><div id="mailPrev"></div></div>
+    <div class="mailbtns">
+      <button type="button" class="btn pri" id="btnCopyMail">Kopiuj mail (do Firmao)</button>
+      <button type="button" class="btn" id="btnCopySubj">Kopiuj temat</button>
+      <a class="btn" id="btnMailto" target="_blank" rel="noopener" href="#" style="text-decoration:none;display:inline-flex;align-items:center">Otwórz w programie pocztowym</a>
+      <button type="button" class="btn" id="btnMarkSent">Oznacz: mail wysłany</button>
+    </div>
+    <span class="hint">„Kopiuj mail” kopiuje wiadomość z grafiką i formatowaniem. Wklej ją w nowej wiadomości w Firmao (Ctrl+V). Program pocztowy dostaje wersję tekstową.</span>
+  </div>
+</section>`}
+
+function zadBody(){return headSection()+`
+<section class="blk">
+  <div class="sec-head"><h2>Zadaszenie tarasu</h2><span class="muted">Wszystkie wymiary w mm</span></div>
+  <div class="scheme">
+    <svg viewBox="0 0 340 210" role="img" aria-label="Schemat boczny zadaszenia: wysięg B, wysokości H1 i H2">
+      <rect class="sv-wall" x="18" y="14" width="22" height="170"/>
+      <line class="sv-ground" x1="10" y1="184" x2="330" y2="184"/>
+      <line class="sv-roof" x1="40" y1="52" x2="292" y2="86"/>
+      <rect class="sv-post" x="276" y="86" width="9" height="98"/>
+      <line class="sv-dim" x1="40" y1="30" x2="292" y2="30"/><line class="sv-dim" x1="40" y1="24" x2="40" y2="36"/><line class="sv-dim" x1="292" y1="24" x2="292" y2="36"/>
+      <text class="sv-l" x="120" y="22">B wysięg</text><text class="sv-t" id="svB" x="196" y="22">—</text>
+      <line class="sv-dim" x1="58" y1="52" x2="58" y2="184"/><line class="sv-dim" x1="52" y1="52" x2="64" y2="52"/>
+      <text class="sv-l" x="66" y="112">H1</text><text class="sv-t" id="svH1" x="66" y="128">—</text>
+      <line class="sv-dim" x1="304" y1="86" x2="304" y2="184"/><line class="sv-dim" x1="298" y1="86" x2="310" y2="86"/>
+      <text class="sv-l" x="250" y="140" text-anchor="end">H2</text><text class="sv-t" id="svH2" x="250" y="156" text-anchor="end">—</text>
+      <text class="sv-t" x="22" y="202">ściana budynku</text><text class="sv-t" x="330" y="202" text-anchor="end">słup / rynna</text>
+    </svg>
+    <div class="calc" aria-live="polite">
+      <div><small>Powierzchnia</small><b id="cArea">—</b></div>
+      <div><small>Spadek</small><b id="cSlope">—</b></div>
+      <div><small>Różnica H1−H2</small><b id="cDrop">—</b></div>
+      <div><small>Długość połaci</small><b id="cLen">—</b></div>
+      <div class="wide" id="cWarn" hidden></div>
+    </div>
+  </div>
+  <div class="grid g3">
+    ${mm("zad.szer","Szerokość","wzdłuż ściany budynku","A")}
+    ${mm("zad.wys","Wysięg","od ściany do frontu","B")}
+    ${mm("zad.h1","Wys. mocowania","przy ścianie, od posadzki","H1")}
+    ${mm("zad.h2","Wys. przy froncie","pod rynną, od posadzki","H2")}
+    ${cnt("zad.slupy","Ilość słupów przód (szt.)")}
+    ${cnt("zad.slupyTyl","Ilość słupów tył (szt.)")}
+    ${mm("zad.dlugoscSlupa","Długość słupów","opcjonalnie, jeśli inna niż standard")}
+  </div>
+  ${chk("zad.belka","Belka wzmacniająca (korygująca): do 7 m na 2 słupach, 8–14 m na 3 słupach")}
+  ${chk("zad.wypust","Zadaszenie z wypustem (dach wysunięty przed słupy)")}
+  <div class="grid g3" data-show="zad.wypust">
+    ${mm("zad.wypustMm","Długość wypustu","od lica słupów do końca dachu","W")}
+    ${mm("zad.h3","Wys. pod belką przy słupach","od posadzki – tu stoi zabudowa frontu","H3")}
+  </div>
+  <div class="sec-head"><h3>Trójkąty (kliny) pod dachem</h3><span class="muted">Wypełnienie między ścianą boczną a dachem</span></div>
+  <div class="grid">
+    <div class="fld">${chk("zad.trojkatL.on","Trójkąt lewy")}<div data-show="zad.trojkatL.on">${sel("zad.trojkatL.mat","Z czego",KLIN_MAT)}</div></div>
+    <div class="fld">${chk("zad.trojkatP.on","Trójkąt prawy")}<div data-show="zad.trojkatP.on">${sel("zad.trojkatP.mat","Z czego",KLIN_MAT)}</div></div>
+  </div>
+  <div class="grid">
+    ${seg("zad.mocowanie","Mocowanie",["Przyścienne","Wolnostojące"])}
+    ${seg("zad.montazSlupow","Montaż słupów",MONTAZ)}
+    ${seg("zad.odplyw","Odpływ wody (patrząc od domu)",["Lewa","Prawa","Obie"])}
+    ${sel("zad.pokrycie","Pokrycie dachu",POKRYCIA)}
+    ${sel("zad.kolor","Kolor konstrukcji",KOLORY)}
+    <div data-show-has="zad.kolor~Inny">${txt("zad.kolorInny","Numer RAL","text","np. RAL 7022")}</div>
+    ${sel("zad.sciana","Ściana do mocowania",["Cegła pełna","Pustak ceramiczny","Beton","Gazobeton / silikat","Drewno","Inna"])}
+    ${mm("zad.ocieplenie","Grubość ocieplenia","0 jeśli brak")}
+  </div>
+  <div class="sec-head"><h3>Odprowadzenie wody</h3></div>
+  <div class="grid g3">${cnt("zad.odplywyIlosc","Ilość odpływów wody (szt.)")}</div>
+  <div class="checks">${chk("zad.obrobkaRury","Obróbka rury spustowej")}${chk("zad.wodaZDomu","Spuszczenie wody z dachu domu na nasze zadaszenie")}</div>
+  <div class="sec-head"><h3>Oświetlenie i elektryka</h3></div>
+  <div class="grid">
+    <div class="fld">${chk("zad.led","Oświetlenie LED")}<div data-show="zad.led">${cnt("zad.ledIlosc","Ilość LED (szt.)")}</div></div>
+    <div class="fld">${chk("zad.lampki","Przygotowanie instalacji pod lampki")}<div data-show="zad.lampki">${cnt("zad.lampkiIlosc","Ilość punktów (szt.)")}</div></div>
+    <div class="fld">${chk("zad.gniazdka","Gniazdka w słupie")}<div data-show="zad.gniazdka">${cnt("zad.gniazdkaIlosc","Ilość gniazdek (szt.)")}</div></div>
+  </div>
+</section>
+<section class="blk">
+  <div class="sec-head"><h2>Zabudowa</h2><span class="muted">Boki są zwykle skośne: mierz wysokość przy budynku i przy słupie</span></div>
+  ${seg("zab.rodzaj","Zakres zabudowy",["Bez zabudowy","Wybrane boki","Weranda (pełna zabudowa)"])}
+  <div data-show-has="zab.rodzaj~ok|Weranda" style="display:flex;flex-direction:column;gap:12px">
+    <div><button type="button" class="btn sm" id="btnFillWalls">Podpowiedz wymiary z zadaszenia</button></div>
+    ${frontCfg("zab.fr",false)}
+    ${STRONY_ZAD.filter(s=>s.k!=="front").map(s=>sideCard("zab",s,ZAB_TYPY,false)).join("")}
+    <div class="grid">
+      ${seg("zab.posadzka","Posadzka",["Równa","Ze spadkiem"])}
+      <div data-show-has="zab.posadzka~spadkiem">${mm("zab.roznica","Różnica poziomu posadzki","na całej długości")}</div>
+    </div>
+  </div>
+</section>`+vizSection()+tailSection()}
+
+/* ===== Konfigurator frontu ===== */
+function frontCfg(path,own){return `<div class="card" data-front="${path}">
+  <div class="card-head"><h3>Front – podział na pola</h3><span class="hint" data-frinfo></span></div>
+  <div class="grid g3">
+    ${own?cnt(path+".slupy","Ilość słupów przód (szt.)")+mm(path+".szer","Szerokość całego frontu"):""}
+    ${mm(path+".wys","Wysokość frontu")}
+  </div>
+  ${own&&path!=="pb.fr"?seg(path+".montazSlupow","Montaż słupów",MONTAZ):""}
+  <span class="hint">Słup 11 × 11 cm. Szerokości pól wpisuj w świetle, między słupami. Wysokość pola wpisz, jeśli różni się od wysokości frontu.</span>
+  <div class="frsvg" data-frsvg></div>
+  <div class="frsum" data-frsum></div>
+  <div><button type="button" class="btn sm" data-split="${path}">Podziel szerokość równo</button></div>
+  <div class="frpola" data-frpola></div>
+</div>`}
+function frPosts(path){
+  if(path==="zab.fr"){const z=cur.zad||{};return z.belka?belkaSlupy(z.szer):Math.max(2,num(z.slupy)||2)}
+  return Math.max(2,num(getP(cur,path+".slupy"))||2);
+}
+function frTotal(path){return path==="zab.fr"?num(cur.zad?.szer):(num(getP(cur,path+".szer"))||(path==="pb.fr"?num(cur.perg?.szer):null))}
+function frSync(path){
+  let c=getP(cur,path); if(!c){setP(cur,path,{});c=getP(cur,path)}
+  if(!Array.isArray(c.pola))c.pola=[];
+  const n=frPosts(path)-1; while(c.pola.length<n)c.pola.push({}); if(c.pola.length>n)c.pola.length=n;
+  return c;
+}
+function poleName(i,n){if(n<=1)return "Przód";if(i===0)return "Lewy przód";if(i===n-1)return "Prawy przód";return n===3?"Środek przodu":`Środek przodu ${i}`}
+function poleHTML(path,i,n){const p=path+".pola."+i;return `<div class="pole">
+  <h4>${poleName(i,n)}</h4>
+  ${sel(p+".typ","Rodzaj",POLE_TYPY)}
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">${mm(p+".szer","Szerokość")}${mm(p+".wys","Wysokość")}</div>
+  ${extraFields(p)}
+</div>`}
+function frSVG(path,c){
+  const n=c.pola.length, ws=c.pola.map(p=>num(p.szer)), known=ws.every(Boolean);
+  const W=320,X0=10,top=34,bot=150,pw=8, inner=W-pw*(n+1), sum=known?ws.reduce((a,b)=>a+b,0):n;
+  let x=X0, g=`<rect class="fr-beam" x="${X0}" y="${top-10}" width="${W}" height="10"/>`;
+  if(path==="zab.fr"&&cur.zad?.belka)g+=`<rect class="fr-beam2" x="${X0}" y="${top-4}" width="${W}" height="4"/><text class="fr-w" x="${X0+W/2}" y="${top-14}" text-anchor="middle">belka wzmacniająca</text>`;
+  g+=`<rect class="fr-post" x="${x}" y="${top}" width="${pw}" height="${bot-top}"/>`; x+=pw;
+  c.pola.forEach((p,i)=>{const w=inner*(known?ws[i]/sum:1/n), t=p.typ||"", h=bot-top;
+    if(/stała/.test(t))g+=`<rect class="fr-fix" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/><line class="fr-gl" x1="${x+8}" y1="${bot-10}" x2="${x+w-8}" y2="${top+10}"/>`;
+    else if(/przesuwne/.test(t)){const k=Math.max(1,Math.min(10,num(p.skrzydla)||3)),sw=(w-4)/k;
+      g+=`<rect class="fr-glass" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;
+      for(let j=1;j<k;j++)g+=`<line class="fr-gl" x1="${x+2+sw*j}" y1="${top+2}" x2="${x+2+sw*j}" y2="${bot-2}"/>`;
+      if(/ramowe/.test(t)&&!/bezramowe/.test(t))for(let j=0;j<k;j++)g+=`<rect class="fr-frame" x="${x+3+sw*j}" y="${top+3}" width="${sw-2}" height="${h-6}"/>`;}
+    else if(/ZIP/.test(t)){g+=`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;for(let y=top+10;y<bot;y+=8)g+=`<line class="fr-zl" x1="${x+2}" y1="${y}" x2="${x+w-2}" y2="${y}"/>`}
+    else g+=`<rect class="fr-open" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;
+    g+=`<text class="fr-n" x="${x+w/2}" y="${top+(bot-top)/2+4}" text-anchor="middle">${i+1}</text>`;
+    g+=`<text class="fr-w" x="${x+w/2}" y="${bot+16}" text-anchor="middle">${ws[i]?fmt(ws[i]):"?"}</text>`;
+    x+=w; g+=`<rect class="fr-post" x="${x}" y="${top}" width="${pw}" height="${bot-top}"/>`; x+=pw;});
+  g+=`<line x1="0" y1="${bot}" x2="340" y2="${bot}" stroke="currentColor" style="stroke:var(--muted)" stroke-width="2"/>`;
+  return `<svg viewBox="0 0 340 176" role="img" aria-label="Widok frontu: ${n+1} słupy, ${n} pól">${g}</svg>`;
+}
+function frRender(){
+  document.querySelectorAll("#viewForm [data-front]").forEach(card=>{
+    const path=card.dataset.front, c=frSync(path), box=card.querySelector("[data-frpola]");
+    if(box.childElementCount!==c.pola.length){box.innerHTML=c.pola.map((_,i)=>poleHTML(path,i,c.pola.length)).join("");fillIn(box);showRules(box)}
+    card.querySelector("[data-frsvg]").innerHTML=frSVG(path,c);
+    const P=c.pola.length+1, slup=SLUP_MM, ws=c.pola.map(p=>num(p.szer)||0), tot=frTotal(path);
+    const sum=ws.reduce((a,b)=>a+b,0)+(slup?slup*P:0);
+    card.querySelector("[data-frinfo]").textContent=`Słupy przód: ${P} szt.${path==="zab.fr"?" (z zadaszenia"+(cur.zad?.belka?", belka wzmacniająca":"")+")":""} · pola: ${P-1} szt.`;
+    let h=`<span>Suma pól + słupów: <b>${ws.every(Boolean)?fmt(sum)+" mm":"—"}</b></span><span>Szerokość frontu: <b>${tot?fmt(tot)+" mm":"—"}</b></span>`;
+    if(tot&&ws.every(Boolean)&&Math.abs(sum-tot)>20)h+=`<span class="warn">Różnica ${fmt(sum-tot)} mm. Sprawdź szerokości pól.</span>`;
+    card.querySelector("[data-frsum]").innerHTML=h;
+  });
+}
+function frSplit(path){
+  const c=frSync(path), tot=frTotal(path); if(!tot){toast(path==="zab.fr"?"Najpierw wpisz szerokość zadaszenia (A)":"Najpierw wpisz szerokość całego frontu");return}
+  const P=c.pola.length+1, slup=SLUP_MM, w=Math.floor((tot-slup*P)/c.pola.length);
+  c.pola.forEach(p=>p.szer=String(w)); dirty=true; saveDraft(); fillForm(); toast("Podzielono, odjęto słupy 11 × 11 cm");
+}
+
+function vizSection(){return `
+<section class="blk">
+  <div class="sec-head"><h2>Wizualizacja</h2><span class="muted">Rysuje się sama z wpisanych wymiarów i opcji</span></div>
+  <div class="viz" id="viz"></div>
+  <div class="vizbar"><button type="button" class="btn sm" id="btnVizSave">Zapisz wizualizację do pomiaru</button><span class="hint">Zapisany obraz trafia do folderu zdjęć. Możesz go dołączyć do maila w Firmao.</span></div>
+  <div id="vizList" class="photos"></div>
+</section>`}
+function rolCard(i){const p="rol."+i;return `<div class="card">
+  <div class="card-head"><h3>Roleta ${i+1}</h3><button type="button" class="btn sm" data-del-rol="${i}">Usuń</button></div>
+  <div class="grid">${sel(p+".typ","Rodzaj",ROL_TYPY)}<label class="fld" for="${fid(p+".miejsce")}"><span class="lbl">Gdzie roleta</span><input id="${fid(p+".miejsce")}" data-k="${p}.miejsce" type="text" list="rolMiejsca" placeholder="np. prawy przód, bok lewy, dach"></label></div>
+  <div class="grid g3">${mm(p+".szer","Szerokość")}${mm(p+".wys","Wysokość / wysięg")}${txt(p+".tkanina","Kolor tkaniny","text","np. antracyt")}</div>
+  <div class="grid">${seg(p+".strona","Strona silnika",["Lewa","Prawa"])}</div>
+</div>`}
+function renderRol(){const L=cur.rol||[];if(!$("#rolList"))return;$("#rolList").innerHTML=L.length?L.map((_,i)=>rolCard(i)).join(""):`<p class="muted" style="margin:0">Brak rolet. Dodaj, jeśli klient chce roletę dachową, podszybową lub ZIP.</p>`;fillIn($("#rolList"));showRules($("#rolList"))}
+
+function pozCard(i){const p="poz."+i;return `<div class="card">
+  <div class="card-head"><h3>Pozycja ${i+1}</h3><button type="button" class="btn sm" data-del-poz="${i}">Usuń</button></div>
+  <div class="grid">
+    ${sel(p+".typ","Rodzaj",POZ_TYPY)}
+    ${txt(p+".miejsce","Miejsce","text","np. front, bok lewy")}
+  </div>
+  <div class="grid g3">
+    ${mm(p+".szer","Szerokość")}
+    ${mm(p+".wys","Wysokość")}
+  </div>
+  ${extraFields(p)}
+  ${chk(p+".klin","Trójkąt nad pozycją (pod dachem)")}
+  <div data-show="${p}.klin" class="grid g3">${sel(p+".klinTyp","Z czego trójkąt",KLIN_MAT)}</div>
+</div>`}
+function renderPoz(){const L=cur.poz||[];$("#pozList").innerHTML=L.length?L.map((_,i)=>pozCard(i)).join(""):`<p class="muted" style="margin:0">Brak pozycji. Dodaj pierwszą.</p>`}
+function zabOnlyBody(){return headSection()+`
+<section class="blk">
+  <div class="sec-head"><h2>Istniejące zadaszenie</h2><span class="muted">Pod nie montujemy zabudowę</span></div>
+  <div class="grid">
+    ${seg("ist.zadaszenie","Zadaszenie",["Aluboss","Inny producent","Brak"])}
+    ${sel("ist.kolor","Kolor konstrukcji zabudowy",KOLORY)}
+    <div data-show-has="ist.kolor~Inny">${txt("ist.kolorInny","Numer RAL","text","np. RAL 7022")}</div>
+  </div>
+</section>
+<section class="blk">
+  <div class="sec-head"><h2>Front</h2><span class="muted">Ile słupów, tyle podziałów. Każde pole ustawiasz osobno</span></div>
+  ${frontCfg("fr",true)}
+</section>
+<section class="blk">
+  <div class="sec-head"><h2>Boki i inne pozycje</h2><span class="muted">Jedna pozycja na każdy otwór. Wymiary w mm</span></div>
+  <div id="pozList" style="display:flex;flex-direction:column;gap:12px"></div>
+  <div><button type="button" class="btn sm" id="btnAddPoz">+ Dodaj pozycję</button></div>
+  <div class="grid">
+    ${seg("zab.posadzka","Posadzka",["Równa","Ze spadkiem"])}
+    <div data-show-has="zab.posadzka~spadkiem">${mm("zab.roznica","Różnica poziomu posadzki","na całej długości")}</div>
+  </div>
+</section>`+tailSection()}
+
+function pergBody(){return headSection()+`
+<section class="blk">
+  <div class="sec-head"><h2>Pergola lamelowa</h2><span class="muted">Wymiary zewnętrzne w mm</span></div>
+  <div class="scheme">
+    <svg viewBox="0 0 340 210" role="img" aria-label="Schemat frontu pergoli: szerokość A i wysokość H">
+      <line class="sv-ground" x1="10" y1="184" x2="330" y2="184"/>
+      <rect class="sv-post" x="40" y="60" width="12" height="124"/><rect class="sv-post" x="288" y="60" width="12" height="124"/>
+      <rect class="sv-post" x="40" y="52" width="260" height="12"/>
+      ${Array.from({length:12},(_,i)=>`<line class="sv-lam" x1="${62+i*20}" y1="42" x2="${72+i*20}" y2="50"/>`).join("")}
+      <line class="sv-dim" x1="40" y1="26" x2="300" y2="26"/><line class="sv-dim" x1="40" y1="20" x2="40" y2="32"/><line class="sv-dim" x1="300" y1="20" x2="300" y2="32"/>
+      <text class="sv-l" x="120" y="18">A szerokość</text><text class="sv-t" id="svPA" x="210" y="18">—</text>
+      <line class="sv-dim" x1="316" y1="64" x2="316" y2="184"/><line class="sv-dim" x1="310" y1="64" x2="322" y2="64"/>
+      <text class="sv-l" x="280" y="120" text-anchor="end">H</text><text class="sv-t" id="svPH" x="280" y="136" text-anchor="end">—</text>
+      <text class="sv-t" x="170" y="202" text-anchor="middle">widok od frontu · B głębokość</text>
+    </svg>
+    <div class="calc" aria-live="polite">
+      <div><small>Powierzchnia</small><b id="cPArea">—</b></div>
+      <div><small>Obwód</small><b id="cPObw">—</b></div>
+      <div class="wide" id="cPWarn" hidden></div>
+    </div>
+  </div>
+  <div class="grid g3">
+    ${mm("perg.szer","Szerokość","","A")}
+    ${mm("perg.gl","Głębokość","","B")}
+    ${mm("perg.wys","Wysokość w świetle","pod belką","H")}
+    ${cnt("perg.slupy","Ilość słupów (szt.)")}
+  </div>
+  <div class="grid">
+    ${seg("perg.mocowanie","Mocowanie",["Przyścienna","Wolnostojąca"])}
+    ${seg("perg.montazSlupow","Montaż słupów",MONTAZ)}
+    ${seg("perg.lamele","Kierunek lameli",["Równoległe","Prostopadłe"])}
+    ${txt("perg.lameleDo","Do czego (kierunek lameli)","text","np. do ściany domu")}
+    ${seg("perg.odplyw","Odpływ wody (słup)",["Lewy","Prawy","Oba"])}
+    ${sel("perg.kolor","Kolor konstrukcji",KOLORY)}
+    <div data-show-has="perg.kolor~Inny">${txt("perg.kolorInny","Numer RAL","text","np. RAL 7022")}</div>
+    ${sel("perg.kolorLameli","Kolor lameli",KOLORY)}
+    <div data-show-has="perg.kolorLameli~Inny">${txt("perg.kolorLameliInny","Numer RAL lameli","text","np. RAL 9016")}</div>
+    ${sel("perg.sterowanie","Sterowanie lamelami",["Pilot","Aplikacja + pilot","Do ustalenia"])}
+    ${sel("perg.pilot","Pilot",PILOT)}
+    ${seg("perg.silnik","Silnik – strona",["Przód","Bok","Wpisz ręcznie"])}
+    <div data-show-has="perg.silnik~ręcznie">${txt("perg.silnikGdzie","Gdzie silnik","text","np. tył przy ścianie, lewy róg")}</div>
+    <div data-show-has="perg.mocowanie~Przyścienna">${sel("perg.sciana","Ściana do mocowania",["Cegła pełna","Pustak ceramiczny","Beton","Gazobeton / silikat","Drewno","Inna"])}</div>
+  </div>
+  <div class="checks">${chk("perg.led","Oświetlenie LED")}${chk("perg.czujnik","Czujnik deszczu / wiatru")}${chk("perg.grzalka","Promiennik ciepła")}</div>
+  <div class="grid g3" data-show="perg.led">${cnt("perg.ledIlosc","Ilość LED (szt.)")}</div>
+</section>
+<section class="blk">
+  <div class="sec-head"><h2>Boki pergoli</h2><span class="muted">Zaznacz strony do zabudowy</span></div>
+  ${frontCfg("pb.fr",true)}
+  ${STRONY_PERG.filter(s=>s.k!=="front").map(s=>sideCard("pb",s,PERG_BOKI,false)).join("")}
+</section>`+vizSection()+tailSection()}
+
+/* ===== Stan ===== */
+let cur=null, dirty=false, records=[], filter="all";
+/* ===== Połączenie z serwerem (Apps Script API) ===== */
+const ls={get:k=>{try{return localStorage.getItem(k)}catch(_){return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch(_){}},del:k=>{try{localStorage.removeItem(k)}catch(_){}}};
+let API_URL=((window.ALUBOSS_CONFIG||{}).apiUrl||"").trim()||ls.get("al_api")||"";
+let TOKEN=ls.get("al_token")||"", ME=null;
+try{ME=JSON.parse(ls.get("al_me")||"null")}catch(_){}
+class NetErr extends Error{}
+async function api(action,payload){
+  if(!API_URL)throw new Error("Brak adresu serwera");
+  let res;
+  try{res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({action,token:TOKEN},payload||{})),redirect:"follow"})}
+  catch(e){throw new NetErr("Brak połączenia z internetem")}
+  let j; try{j=await res.json()}catch(e){throw new Error("Serwer nie odpowiada poprawnie. Sprawdź adres API.")}
+  if(!j.ok){const m=String(j.error||"Błąd");if(/^SESJA:/.test(m)){sessionLost(m.replace(/^SESJA:\s*/,""))}throw new Error(m.replace(/^SESJA:\s*/,""))}
+  return j.data;
+}
+const srv=(fn,...a)=>{switch(fn){
+  case "listRecords":return api("list");
+  case "saveRecord":return api("save",{record:a[0]});
+  case "setStatus":return api("status",{id:a[0],status:a[1]});
+  case "deleteRecord":return api("delete",{id:a[0]});
+  case "uploadPhoto":return api("upload",{dataUrl:a[0],name:a[1]});
+  default:return Promise.reject(new Error("Nieznana operacja"))}};
+const errMsg=e=>String(e&&e.message||e);
+let loaded=false;
+function cacheRecords(){ls.set("al_cache",JSON.stringify(records))}
+async function loadRemote(){
+  if(!TOKEN)return;
+  $("#btnRefresh").disabled=true;
+  await flushQueue();
+  try{const d=await srv("listRecords");records=d.records||[];applyQueueToList();loaded=true;cacheRecords();renderList();if(cur&&!$("#viewForm").hidden)refresh()}
+  catch(e){
+    if(e instanceof NetErr){try{records=JSON.parse(ls.get("al_cache")||"[]")}catch(_){records=[]}applyQueueToList();loaded=true;renderList();toast("Brak internetu. Pokazuję ostatnio pobraną listę.")}
+    else{$("#emptyTitle").textContent=errMsg(e);$("#empty").hidden=false;$("#rows").hidden=true}}
+  finally{$("#btnRefresh").disabled=false;renderQueueInfo()}
+}
+/* Kolejka pomiarów zapisanych bez internetu */
+function queue(){try{return JSON.parse(ls.get("al_queue")||"[]")}catch(_){return []}}
+function setQueue(q){ls.set("al_queue",JSON.stringify(q));renderQueueInfo()}
+function applyQueueToList(){queue().forEach(q=>{records=records.filter(r=>r.id!==q.id);records.unshift(q)})}
+function renderQueueInfo(){const n=queue().length,el=$("#queueInfo");if(!el)return;el.hidden=!n;el.textContent=n?`Czeka na wysłanie: ${n} ${n===1?"pomiar":"pomiary"}. Wyślą się same, gdy wróci internet.`:""}
+let flushing=false;
+async function flushQueue(){
+  if(flushing||!TOKEN)return; flushing=true;
+  try{let q=queue();
+    for(const rec of q.slice()){try{const r=await api("save",{record:rec});q=queue().filter(x=>x.id!==rec.id);setQueue(q);records=records.filter(x=>x.id!==r.id);records.unshift(r)}catch(e){if(e instanceof NetErr)break;toast("Nie wysłano pomiaru "+(rec.klient?.imie||"")+": "+errMsg(e));break}}
+    cacheRecords();
+  }finally{flushing=false}
+}
+window.addEventListener("online",()=>{flushQueue().then(()=>{renderList();if(!queue().length)toast("Wysłano zaległe pomiary")})});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&TOKEN&&!dirty&&$("#viewForm").hidden)loadRemote()});
+function newRecord(typ){return {id:"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),typ,status:STATUSY[0],wykonanie:"Standard",czas:"1 h",dataPomiaru:today(),godzina:"",pomiarowiec:"",opiekun:"",klient:{},zad:{},zab:{},perg:{},pb:{},ist:{},poz:[],fr:{},zdjecia:[],szkice:[],wizualizacje:[],rol:[],warunki:{},uwagi:"",uwagiKlient:"",createdAt:Date.now()}}
+
+function buildForm(){
+  $("#formBody").innerHTML=cur.typ==="pergola"?pergBody():cur.typ==="zabudowa"?zabOnlyBody():zadBody();
+  if(cur.typ==="zabudowa")renderPoz();
+  renderRol();
+  $("#statusSlot").innerHTML=`<span class="lbl">Status pomiaru</span><div class="seg">${STATUSY.map((o,i)=>`<label><input type="radio" id="st_${i}" name="status" data-k="status" value="${o}"><span>${o}</span></label>`).join("")}</div>`;
+  $("#formType").textContent=TYP_NAZWA[cur.typ];
+  bindMailButtons(); bindMedia();
+}
+function fillIn(root){
+  root.querySelectorAll("[data-k]").forEach(el=>{
+    const v=getP(cur,el.dataset.k);
+    if(el.type==="checkbox")el.checked=!!v; else if(el.type==="radio")el.checked=(v===el.value); else el.value=v??"";
+  });
+}
+function fillForm(){fillIn($("#viewForm"));refresh()}
+function showRules(root){
+  root.querySelectorAll("[data-show]").forEach(el=>{el.hidden=!getP(cur,el.dataset.show)});
+  root.querySelectorAll("[data-show-has]").forEach(el=>{const [k,re]=el.dataset.showHas.split("~");el.hidden=!new RegExp(re).test(getP(cur,k)||"")});
+}
+function refresh(){
+  if(cur.typ==="zadaszenie"&&cur.zad?.belka){const n=String(belkaSlupy(cur.zad.szer));if(cur.zad.slupy!==n){cur.zad.slupy=n;const sl=$("#"+fid("zad.slupy"));if(sl)sl.value=n}}
+  frRender(); showRules($("#viewForm"));
+  const sl=$("#"+fid("zad.slupy")); if(sl)sl.disabled=!!cur.zad?.belka;
+  if(cur.typ==="pergola")calcPerg(); else if(cur.typ==="zadaszenie")calcZad();
+  $("#formTitle").textContent=cur.klient?.imie||({pergola:"Nowa pergola lamelowa",zabudowa:"Nowa zabudowa"}[cur.typ]||"Nowe zadaszenie");
+  $("#dirty").hidden=!dirty;
+  const saved=records.some(r=>r.id===cur.id); $("#btnDel").hidden=!saved; $("#delSpacer").hidden=saved;
+  renderMail(); renderMedia(); renderViz();
+  const ci=$("#calInfo"); if(ci)ci.textContent=cur.kalendarzBlad?("Kalendarz: "+cur.kalendarzBlad):cur.eventId?"Pomiar jest w kalendarzu „Pomiary Aluboss”. Zmiany daty i godziny przeniosą się same.":"Pomiar z datą trafi do kalendarza „Pomiary Aluboss”. Pomiarowiec dostanie zaproszenie.";
+}
+function calcZad(){
+  const z=cur.zad||{}, A=num(z.szer), B=num(z.wys), h1=num(z.h1), h2=num(z.h2), warns=[];
+  $("#svB").textContent=B?fmt(B)+" mm":"—"; $("#svH1").textContent=h1?fmt(h1):"—"; $("#svH2").textContent=h2?fmt(h2):"—";
+  $("#cArea").textContent=(A&&B)?fmt(A*B/1e6,2)+" m²":"—";
+  if(B&&h1!=null&&h2!=null){const d=h1-h2,deg=Math.atan(d/B)*180/Math.PI;
+    $("#cDrop").textContent=fmt(d)+" mm"; $("#cSlope").textContent=fmt(deg,1)+"° · "+fmt(d/B*100,1)+"%"; $("#cLen").textContent=fmt(Math.sqrt(B*B+d*d))+" mm";
+    if(d<=0)warns.push("H2 jest równe lub wyższe niż H1: dach nie ma spadku od budynku. Sprawdź pomiar.");
+    else if(deg<5)warns.push("Bardzo mały spadek. Skonsultuj z technikiem przed wyceną.");
+  }else ["#cDrop","#cSlope","#cLen"].forEach(s=>$(s).textContent="—");
+  if(A&&A>7000&&!num(z.slupy)&&!z.belka)warns.push("Szerokość powyżej 7 m: wpisz liczbę słupów.");
+  if(z.wypust&&!num(z.wypustMm))warns.push("Zaznaczono wypust: wpisz jego długość (W).");
+  if(z.wypust&&num(z.wypustMm)&&B&&num(z.wypustMm)>=B)warns.push("Wypust nie może być dłuższy niż cały wysięg B.");
+  if(z.belka&&A&&A>14000)warns.push("Belka wzmacniająca działa do 14 m. Powyżej skonsultuj konstrukcję z technikiem.");
+  const w=$("#cWarn"); w.hidden=!warns.length; w.innerHTML=warns.map(t=>`<div class="warn">${esc(t)}</div>`).join("");
+}
+function calcPerg(){
+  const p=cur.perg||{}, A=num(p.szer), B=num(p.gl), H=num(p.wys);
+  $("#svPA").textContent=A?fmt(A)+" mm":"—"; $("#svPH").textContent=H?fmt(H):"—";
+  $("#cPArea").textContent=(A&&B)?fmt(A*B/1e6,2)+" m²":"—";
+  $("#cPObw").textContent=(A&&B)?fmt(2*(A+B)/1000,2)+" m":"—";
+  const warns=[]; if(H&&H<2000)warns.push("Wysokość w świetle poniżej 2 m. Upewnij się, że to właściwy pomiar.");
+  const w=$("#cPWarn"); w.hidden=!warns.length; w.innerHTML=warns.map(t=>`<div class="warn">${esc(t)}</div>`).join("");
+}
+
+/* ===== Opisy dla klienta ===== */
+const mmTxt=v=>num(v)?fmt(num(v))+" mm":"—";
+function sideText(w,s){
+  const szer=w.szer||w.szerGora||w.szerDol, wys=w.wys||w.hA||w.hB;
+  let t=`${w.typ||"rodzaj do ustalenia"}, szer. ${mmTxt(szer)}`;
+  if(num(wys))t+=`, wys. ${mmTxt(wys)}`;
+  const ty=w.typ||"";
+  if(num(w.skrzydla)&&/przesuwne/.test(ty))t+=`, ilość skrzydeł: ${szt(w.skrzydla)}`;
+  if(w.parkowanie&&/przesuwne/.test(ty))t+=`, parkowanie: ${w.parkowanie.toLowerCase()}`;
+  if(w.maskownica&&/przesuwne/.test(ty))t+=`, z maskownicą`;
+  if(w.material&&/^Ściana stała$/.test(ty))t+=` (${w.material})`;
+  if(/Panel/.test(ty)&&w.kolorPanelu)t+=`, kolor: ${/Inny/.test(w.kolorPanelu)?(w.kolorPaneluInny||w.kolorPanelu):w.kolorPanelu}`;
+  if(/ZIP/.test(ty)&&w.strona)t+=`, silnik z ${w.strona==="Lewa"?"lewej":"prawej"} strony`;
+  if(w.klin)t+=`, trójkąt: ${w.klinTyp||"do ustalenia"}`;
+  return t;
+}
+function frRows(add,c,P,lbl,withPosts){
+  if(!c||!Array.isArray(c.pola)||!c.pola.length)return;
+  if(withPosts!==false)add(`Ilość słupów ${lbl.toLowerCase()}`,szt(P));
+  add(`Ilość pól – ${lbl.toLowerCase()}`,szt(c.pola.length));
+  c.pola.forEach((p,i)=>{if(!p.typ&&!p.szer)return;
+    const w=Object.assign({},p,{wys:p.wys||c.wys||c.hA||c.hB});
+    add(poleName(i,c.pola.length),/Bez zabudowy/.test(p.typ||"")?`bez zabudowy (wejście), szer. ${mmTxt(p.szer)}`:sideText(w));});
+}
+function clientRows(r){
+  const rows=[], add=(l,v)=>{if(v)rows.push([l,v])};
+  if(r.wykonanie==="Na wymiar")add("Wykonanie","na wymiar (projekt indywidualny)");
+  rows.__tail=()=>{
+    (r.rol||[]).forEach((o,i)=>{if(!o||!(o.typ||o.szer))return;
+      add(`Roleta ${i+1}${o.miejsce?" – "+o.miejsce.toLowerCase():""}`,`${o.typ||"rodzaj do ustalenia"}, ${num(o.szer)?fmt(num(o.szer)):"?"} × ${num(o.wys)?fmt(num(o.wys)):"?"} mm`+(o.strona?`, silnik z ${o.strona==="Lewa"?"lewej":"prawej"} strony`:"")+(o.tkanina?`, tkanina: ${o.tkanina}`:""))});
+    const w=r.warunki||{};
+    if(w.pradStrona&&w.prad!=="Brak")add("Zasilanie elektryczne",(w.pradStrona==="Ze ściany budynku"?"ze ściany budynku":`z ${w.pradStrona==="Lewa"?"lewej":"prawej"} strony`)+(w.prad==="Do doprowadzenia"?" (do doprowadzenia)":"")+(w.pradGdzie?`, ${w.pradGdzie}`:""));
+  };
+  if(r.typ==="pergola"){const p=r.perg||{};
+    add("Produkt","Pergola lamelowa"+(p.mocowanie?` (${p.mocowanie.toLowerCase()})`:""));
+    add("Wymiary",[p.szer,p.gl].every(num)?`${fmt(num(p.szer))} × ${fmt(num(p.gl))} mm`:"");
+    add("Wysokość w świetle",num(p.wys)?mmTxt(p.wys):"");
+    add("Kolor konstrukcji",/Inny/.test(p.kolor||"")?(p.kolorInny||p.kolor):p.kolor);
+    add("Ilość słupów",num(p.slupy)?szt(p.slupy):"");
+    add("Montaż słupów",p.montazSlupow?(p.montazSlupow==="Profil U"?"w profil U":"na beton"):"");
+    add("Kolor lameli",/Inny/.test(p.kolorLameli||"")?(p.kolorLameliInny||p.kolorLameli):p.kolorLameli);
+    add("Kierunek lameli",p.lamele?(p.lamele+(p.lameleDo?` do: ${p.lameleDo}`:"")):"");
+    add("Sterowanie",p.sterowanie);
+    add("Pilot",p.pilot);
+    add("Silnik – strona",p.silnik==="Wpisz ręcznie"?p.silnikGdzie:p.silnik);
+    add("Dodatki",[p.led&&("oświetlenie LED"+(num(p.ledIlosc)?` – ${szt(p.ledIlosc)}`:"")),p.czujnik&&"czujnik deszczu i wiatru",p.grzalka&&"promiennik ciepła"].filter(Boolean).join(", "));
+    if(r.pb?.fr&&(r.pb.fr.pola||[]).some(p=>p&&(p.typ||p.szer)))frRows(add,Object.assign({},r.pb.fr,{wys:r.pb.fr.wys||r.perg?.wys}),Math.max(2,num(r.pb.fr.slupy)||2),"Przód");
+    STRONY_PERG.forEach(s=>{const w=r.pb?.[s.k];if(w?.on)add(s.n,sideText(w,s))});
+  }else if(r.typ==="zabudowa"){const i=r.ist||{};
+    add("Produkt","Zabudowa tarasu"+(i.zadaszenie&&i.zadaszenie!=="Brak"?` pod istniejące zadaszenie (${i.zadaszenie})`:""));
+    add("Kolor konstrukcji",/Inny/.test(i.kolor||"")?(i.kolorInny||i.kolor):i.kolor);
+    frRows(add,r.fr,Math.max(2,num(r.fr?.slupy)||2),"Przód");
+    add("Montaż słupów",r.fr?.montazSlupow?(r.fr.montazSlupow==="Profil U"?"w profil U":"na beton"):"");
+    (r.poz||[]).forEach((w,n)=>{if(w&&(w.typ||w.szer||w.szerGora||w.szerDol))add(`Pozycja ${n+1}${w.miejsce?" – "+w.miejsce:""}`,sideText(w))});
+  }else{const z=r.zad||{};
+    add("Produkt","Zadaszenie tarasu"+(z.mocowanie?` (${z.mocowanie.toLowerCase()})`:""));
+    add("Wymiary",[z.szer,z.wys].every(num)?`${fmt(num(z.szer))} × ${fmt(num(z.wys))} mm (szerokość × wysięg)`:"");
+    add("Wysokości",(num(z.h1)||num(z.h2))?`przy ścianie ${mmTxt(z.h1)}, przy froncie ${mmTxt(z.h2)}`:"");
+    add("Pokrycie dachu",z.pokrycie);
+    add("Kolor konstrukcji",/Inny/.test(z.kolor||"")?(z.kolorInny||z.kolor):z.kolor);
+    add("Ilość słupów przód",z.belka?`${szt(belkaSlupy(z.szer))} (belka wzmacniająca)`:(num(z.slupy)?szt(z.slupy):""));
+    add("Ilość słupów tył",num(z.slupyTyl)?szt(z.slupyTyl):"");
+    add("Słupy",[(z.belka||num(z.slupy)||num(z.slupyTyl))?"11 × 11 cm":"",num(z.dlugoscSlupa)?`długość ${fmt(num(z.dlugoscSlupa))} mm`:""].filter(Boolean).join(", "));
+    const tr=[["lewy",z.trojkatL],["prawy",z.trojkatP]].filter(x=>x[1]&&x[1].on).map(x=>`${x[0]}${x[1].mat?" – "+x[1].mat:""}`);
+    add("Trójkąty pod dachem",tr.join(", "));
+    add("Wypust",z.wypust?`${num(z.wypustMm)?fmt(num(z.wypustMm))+" mm":"tak"} (dach wysunięty przed słupy)`+(num(z.h3)?`, wys. pod belką ${fmt(num(z.h3))} mm`:""):"");
+    add("Montaż słupów",z.montazSlupow?(z.montazSlupow==="Profil U"?"w profil U":"na beton"):"");
+    add("Odprowadzenie wody",[z.odplyw?`odpływ: ${z.odplyw.toLowerCase()}`:"",num(z.odplywyIlosc)?`ilość odpływów: ${szt(z.odplywyIlosc)}`:"",z.obrobkaRury&&"obróbka rury spustowej",z.wodaZDomu&&"spuszczenie wody z dachu domu na zadaszenie"].filter(Boolean).join(", "));
+    add("Oświetlenie i elektryka",[z.led&&("oświetlenie LED"+(num(z.ledIlosc)?` – ${szt(z.ledIlosc)}`:"")),z.lampki&&("przygotowanie instalacji pod lampki"+(num(z.lampkiIlosc)?` – ${szt(z.lampkiIlosc)}`:"")),z.gniazdka&&("gniazdka w słupie"+(num(z.gniazdkaIlosc)?` – ${szt(z.gniazdkaIlosc)}`:""))].filter(Boolean).join(", "));
+    const zr=r.zab?.rodzaj; if(zr&&zr!=="Bez zabudowy"){add("Zabudowa",zr);frRows(add,r.zab?.fr,z.belka?belkaSlupy(z.szer):Math.max(2,num(z.slupy)||2),"Przód",false);STRONY_ZAD.filter(s=>s.k!=="front").forEach(s=>{const w=r.zab?.[s.k];if(w?.on)add(s.n,sideText(w,s))})}
+  }
+  rows.__tail();
+  return rows;
+}
+function subject(r){return `Podsumowanie pomiaru – ${({pergola:"pergola lamelowa",zabudowa:"zabudowa tarasu"})[r.typ]||"zadaszenie tarasu"} – ALUBOSS`}
+
+/* ===== Mail HTML (tabele + style inline, bezpieczne dla programów pocztowych) ===== */
+function mailHTML(r){
+  const F="font-family:Roboto,Arial,Helvetica,sans-serif;", INK="#22292A", GR="#5D6668", AN="#353B3B", BLUE="#356DA1", LINE="#E2E7EC";
+  const first=(r.klient?.imie||"").trim().split(/\s+/)[0];
+  const rows=clientRows(r).map(([l,v],i)=>`<tr><td style="${F}font-size:13px;color:${GR};padding:9px 12px;border-top:1px solid ${LINE};width:38%;vertical-align:top">${esc(l)}</td><td style="${F}font-size:14px;color:${INK};padding:9px 12px;border-top:1px solid ${LINE};vertical-align:top">${esc(v)}</td></tr>`).join("");
+  const info=clientInfo(r);
+  const opiekun=r.opiekun||"Dział handlowy";
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EEF0F2"><tr><td align="center" style="padding:16px 8px">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#FFFFFF">
+ <tr><td style="background:${AN};padding:22px 28px">
+   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+     <td style="${F}font-size:26px;font-weight:bold;letter-spacing:6px;color:#FFFFFF">ALUBOSS</td>
+     <td align="right" style="${F}font-size:11px;letter-spacing:2px;color:#C9CED3;text-transform:uppercase">Podsumowanie pomiaru</td>
+   </tr></table>
+ </td></tr>
+ <tr><td style="height:4px;line-height:4px;font-size:0;background:${BLUE}">&nbsp;</td></tr>
+ <tr><td style="padding:28px 28px 8px">
+   <p style="${F}font-size:15px;line-height:22px;color:${INK};margin:0 0 14px">Dzień dobry${first?" "+esc(first):""},</p>
+   <p style="${F}font-size:15px;line-height:22px;color:${INK};margin:0 0 14px">dziękujemy za spotkanie i możliwość wykonania pomiaru. Poniżej przesyłamy podsumowanie ustaleń. Prosimy o sprawdzenie danych. Jeśli coś wymaga poprawy, wystarczy odpowiedzieć na tę wiadomość.</p>
+ </td></tr>
+ ${info.length?`<tr><td style="padding:6px 28px 6px;${F}font-size:12px;font-weight:bold;letter-spacing:2px;color:${BLUE};text-transform:uppercase">Dane klienta</td></tr><tr><td style="padding:0 28px 8px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">${info.map(([l,v])=>`<tr><td style="${F}font-size:13px;color:${GR};padding:3px 0;width:38%">${esc(l)}</td><td style="${F}font-size:14px;color:${INK};padding:3px 0">${esc(v)}</td></tr>`).join("")}</table></td></tr>`:""}
+ <tr><td style="padding:14px 28px 6px;${F}font-size:12px;font-weight:bold;letter-spacing:2px;color:${BLUE};text-transform:uppercase">Zakres i wymiary</td></tr>
+ <tr><td style="padding:0 28px 18px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-bottom:1px solid ${LINE}">${rows||`<tr><td style="${F}font-size:14px;color:${GR};padding:9px 12px">Uzupełnij wymiary w karcie pomiaru.</td></tr>`}</table></td></tr>
+ ${r.uwagiKlient?`<tr><td style="padding:0 28px 18px"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="background:#F3F5F7;border-left:3px solid ${BLUE};padding:12px 14px;${F}font-size:14px;line-height:21px;color:${INK}">${esc(r.uwagiKlient).replace(/\n/g,"<br>")}</td></tr></table></td></tr>`:""}
+ <tr><td style="padding:0 28px 26px">
+   <p style="${F}font-size:15px;line-height:22px;color:${INK};margin:0 0 14px">Na podstawie pomiaru przygotujemy dla Państwa ofertę. W razie pytań jestem do dyspozycji.</p>
+   <p style="${F}font-size:15px;line-height:22px;color:${INK};margin:0">Pozdrawiam serdecznie,<br><strong>${esc(opiekun)}</strong><br><span style="color:${GR};font-size:13px">ALUBOSS · dział handlowy</span></p>
+ </td></tr>
+ <tr><td style="background:${AN};padding:20px 28px">
+   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+     <td style="${F}vertical-align:top">
+       <div style="${F}font-size:18px;font-weight:bold;letter-spacing:4px;color:#FFFFFF">ALUBOSS</div>
+       <div style="${F}font-size:12px;line-height:18px;color:#C9CED3;padding-top:4px">Tworzymy systemy ścian i zadaszeń, które robią wrażenie.</div>
+     </td>
+     <td align="right" style="${F}font-size:13px;line-height:20px;color:#FFFFFF;vertical-align:top">
+       tel. ${BIURO.tel}<br>
+       <a href="mailto:${BIURO.mail}" style="color:#FFFFFF;text-decoration:none">${BIURO.mail}</a><br>
+       <a href="https://${BIURO.www}" style="color:#FFFFFF;text-decoration:none">${BIURO.www}</a>
+     </td>
+   </tr></table>
+ </td></tr>
+</table></td></tr></table>`;
+}
+function clientInfo(r){const k=r.klient||{};return [["Klient",k.imie],["Telefon",k.telefon],["E-mail",k.email],["Adres montażu",[k.adres,k.miasto].filter(Boolean).join(", ")],["Data pomiaru",plDate(r.dataPomiaru)+(r.godzina?", godz. "+r.godzina:"")],["Pomiar wykonał",r.pomiarowiec],["Opiekun",r.opiekun]].filter(x=>x[1])}
+function mailText(r){
+  const first=(r.klient?.imie||"").trim().split(/\s+/)[0], L=[];
+  L.push(`Dzień dobry${first?" "+first:""},`,"","dziękujemy za spotkanie i możliwość wykonania pomiaru. Poniżej przesyłamy podsumowanie ustaleń. Prosimy o sprawdzenie danych. Jeśli coś wymaga poprawy, wystarczy odpowiedzieć na tę wiadomość.","");
+  L.push("DANE KLIENTA"); clientInfo(r).forEach(([l,v])=>L.push(`${l}: ${v}`));
+  L.push("","ZAKRES I WYMIARY"); clientRows(r).forEach(([l,v])=>L.push(`${l}: ${v}`));
+  if(r.uwagiKlient)L.push("",r.uwagiKlient);
+  L.push("","Na podstawie pomiaru przygotujemy dla Państwa ofertę. W razie pytań jestem do dyspozycji.","","Pozdrawiam serdecznie,",r.opiekun||"Dział handlowy","ALUBOSS · dział handlowy",`tel. ${BIURO.tel} · ${BIURO.mail} · ${BIURO.www}`);
+  return L.join("\n");
+}
+function renderMail(){
+  if(!$("#mailPrev"))return;
+  $("#mailPrev").innerHTML=mailHTML(cur); $("#mailSubj").textContent=subject(cur);
+  $("#btnMailto").href=`mailto:${encodeURIComponent(cur.klient?.email||"")}?subject=${encodeURIComponent(subject(cur))}&body=${encodeURIComponent(mailText(cur))}`;
+}
+function bindMailButtons(){
+  $("#btnCopyMail").onclick=async()=>{
+    const html=mailHTML(cur), text=mailText(cur);
+    if(nativeCopy(html,text)){toast("Skopiowano mail. Wklej go w Firmao.");return}
+    try{await navigator.clipboard.write([new ClipboardItem({"text/html":new Blob([html],{type:"text/html"}),"text/plain":new Blob([text],{type:"text/plain"})})]);toast("Skopiowano mail. Wklej go w Firmao.");return}catch(_){}
+    try{const sel=getSelection(),rg=document.createRange();rg.selectNodeContents($("#mailPrev"));sel.removeAllRanges();sel.addRange(rg);
+      const ok=document.execCommand("copy");sel.removeAllRanges();toast(ok?"Skopiowano mail. Wklej go w Firmao.":"Zaznacz podgląd i skopiuj ręcznie (Ctrl+C)")}catch(_){toast("Zaznacz podgląd i skopiuj ręcznie (Ctrl+C)")}
+  };
+  $("#btnCopySubj").onclick=()=>{const t=subject(cur);if(nativeCopy("",t)){toast("Skopiowano temat");return}(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast("Skopiowano temat"),()=>toast(t))};
+  $("#btnMailto").onclick=e=>{if(!cur.klient?.email){e.preventDefault();toast("Wpisz e-mail klienta");$("#"+fid("klient.email")).focus()}};
+  $("#btnMarkSent").onclick=()=>{cur.status=STATUSY[2];fillForm();save()};
+}
+
+function nativeCopy(html,text){try{const h=window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.copy;if(!h)return false;h.postMessage({html,text});return true}catch(_){return false}}
+
+/* ===== Lista ===== */
+function renderFilters(){
+  const opts=[["all","Wszystkie"],...STATUSY.map((s,i)=>[String(i),s])];
+  $("#filters").innerHTML=opts.map(([k,n])=>`<button type="button" data-f="${k}" aria-pressed="${filter===k}">${n} <span class="muted">${k==="all"?records.length:records.filter(r=>r.status===STATUSY[+k]).length}</span></button>`).join("");
+}
+function renderList(){
+  records.sort((a,b)=>(b.updatedAt||0)-(a.updatedAt||0));
+  renderFilters();
+  const q=$("#q").value.trim().toLowerCase();
+  const L=records.filter(r=>(filter==="all"||r.status===STATUSY[+filter])&&(!q||[r.klient?.imie,r.klient?.miasto,r.klient?.telefon,r.klient?.adres].join(" ").toLowerCase().includes(q)));
+  if(!loaded)return;
+  $("#emptyTitle").textContent="Brak zapisanych pomiarów";
+  $("#empty").hidden=!!records.length; $("#rows").hidden=!records.length;
+  $("#rows").innerHTML=L.length?L.map(r=>{const si=Math.max(0,STATUSY.indexOf(r.status));
+    return `<div class="row">
+      <button type="button" class="open" data-open="${esc(r.id)}">${esc(r.klient?.imie||"Bez nazwiska")}</button>
+      <select class="s-${si}" data-st="${esc(r.id)}" aria-label="Status">${STATUSY.map(s=>`<option${s===r.status?" selected":""}>${s}</option>`).join("")}</select>
+      <span class="meta"><span class="chip">${TYP_NAZWA[r.typ]||""}</span>${r.wykonanie==="Na wymiar"?`<span class="chip">Na wymiar</span>`:""}${r.eventId?`<span class="chip">W kalendarzu</span>`:""}<span>${esc(r.klient?.miasto||"—")}</span><span>${esc(r.dataPomiaru?plDate(r.dataPomiaru):"")}${r.godzina?" "+esc(r.godzina):""}</span>${r.pomiarowiec?`<span>Pomiar: ${esc(r.pomiarowiec)}</span>`:""}${r.opiekun?`<span>Opiekun: ${esc(r.opiekun)}</span>`:""}</span>
+    </div>`}).join(""):`<div class="row"><span class="muted">Brak pomiarów dla tego filtra.</span></div>`;
+}
+
+/* ===== Widoki i zapis ===== */
+function show(view){
+  const isForm=view==="form";
+  $("#viewList").hidden=view!=="list"; $("#viewForm").hidden=!isForm; $("#actions").hidden=!isForm;
+  $("#viewTeam").hidden=view!=="team"; $("#viewAccount").hidden=view!=="account";
+  $("#tabList").setAttribute("aria-selected",String(!isForm));
+  if(view==="team")loadTeam(); if(view==="account")$("#accInfo").textContent=ME?`${ME.imie} · ${ME.email} · ${ME.rola}`:"";
+  $("#tabZad").setAttribute("aria-selected",String(isForm&&cur?.typ==="zadaszenie"));
+  $("#tabZab").setAttribute("aria-selected",String(isForm&&cur?.typ==="zabudowa"));
+  $("#tabPerg").setAttribute("aria-selected",String(isForm&&cur?.typ==="pergola"));
+  window.scrollTo(0,0);
+  if(isForm&&SK.cv)requestAnimationFrame(()=>{const r=SK.cv.getBoundingClientRect(),d=window.devicePixelRatio||1;if(r.width&&SK.cv.width!==Math.round(r.width*d)){SK.cv.width=Math.round(r.width*d);SK.cv.height=Math.round(r.height*d);SK.ctx.setTransform(d,0,0,d,0,0);skDraw()}});
+}
+function openRecord(r,typ){cur=r?clone(r):newRecord(typ);dirty=false;buildForm();fillForm();show("form")}
+function startNew(typ){
+  if(cur&&dirty&&!$("#viewForm").hidden&&cur.typ===typ){show("form");return}
+  if(cur&&dirty&&cur.typ===typ){show("form");return}
+  openRecord(null,typ);
+}
+function saveDraft(){try{localStorage.setItem(DRAFT,JSON.stringify(cur))}catch(_){}}
+function clearDraft(){try{localStorage.removeItem(DRAFT)}catch(_){}}
+async function save(){
+  if(!cur.klient?.imie){toast("Wpisz imię i nazwisko klienta");$("#"+fid("klient.imie")).focus();return}
+  const b=$("#btnSave");b.disabled=true;b.textContent="Zapisywanie…";
+  try{const r=await srv("saveRecord",clone(cur));cur.updatedAt=r.updatedAt;cur.eventId=r.eventId;cur.kalendarzBlad=r.kalendarzBlad;
+    records=records.filter(x=>x.id!==r.id);records.unshift(r);setQueue(queue().filter(x=>x.id!==r.id));cacheRecords();dirty=false;clearDraft();refresh();renderList();
+    toast(r.kalendarzBlad?"Zapisano pomiar. Kalendarz: "+r.kalendarzBlad:r.eventId?"Zapisano i dodano do kalendarza":"Zapisano pomiar")}
+  catch(e){
+    if(e instanceof NetErr){const rec=clone(cur);rec.updatedAt=Date.now();setQueue(queue().filter(x=>x.id!==rec.id).concat([rec]));
+      records=records.filter(x=>x.id!==rec.id);records.unshift(rec);cacheRecords();dirty=false;clearDraft();refresh();renderList();
+      toast("Brak internetu. Pomiar zapisany w telefonie i wyśle się sam.")}
+    else toast("Nie zapisano: "+errMsg(e))}
+  finally{b.disabled=false;b.textContent="Zapisz pomiar"}
+}
+let delArmed=0;
+function del(){
+  const b=$("#btnDel");
+  if(!delArmed){delArmed=setTimeout(()=>{delArmed=0;b.textContent="Usuń pomiar"},4000);b.textContent="Kliknij ponownie, aby usunąć";return}
+  clearTimeout(delArmed);delArmed=0;b.textContent="Usuń pomiar";
+  const id=cur.id;
+  srv("deleteRecord",id).then(()=>{records=records.filter(r=>r.id!==id);clearDraft();dirty=false;cur=null;renderList();show("list");toast("Usunięto pomiar (kopia w arkuszu „Usunięte”)")},e=>toast("Nie usunięto: "+errMsg(e)));
+}
+function onField(e){
+  const el=e.target; if(!el.dataset||!el.dataset.k)return;
+  let v; if(el.type==="checkbox")v=el.checked; else if(el.type==="radio"){if(!el.checked)return;v=el.value} else v=el.value;
+  setP(cur,el.dataset.k,v);
+
+  dirty=true; saveDraft(); refresh();
+}
+
+/* ===== Wizualizacja ===== */
+function colHex(k){const m=String(k||"").match(/(7016|9006|9010|8014)/);return m?RAL_HEX[m[1]]:"#383E42"}
+function fillFor(t){t=t||"";
+  if(/Panel/.test(t))return {f:"rgba(120,128,134,.9)",lines:"h"};
+  if(/ZIP/.test(t))return {f:"rgba(55,60,64,.62)",lines:"h"};
+  if(/poliw/i.test(t))return {f:"rgba(236,238,240,.78)",lines:""};
+  if(/przesuwne/.test(t))return {f:"rgba(165,200,226,.38)",lines:"v"};
+  if(/stała|VSG|Szkło|szkło/.test(t))return {f:"rgba(165,200,226,.42)",lines:""};
+  return null}
+function vizSVG(r){
+  const isP=r.typ==="pergola", W=640, out=[], ex=[]; let Hh=430;
+  let A,B,H1,H2,col,demo=false;
+  if(isP){const p=r.perg||{};A=num(p.szer);B=num(p.gl);H1=H2=num(p.wys);col=colHex(p.kolor)}
+  else{const z=r.zad||{};A=num(z.szer);B=num(z.wys);H1=num(z.h1);H2=num(z.h2);col=colHex(z.kolor)}
+  if(!A||!B||!H1||!H2){demo=true;A=A||5000;B=B||3500;H1=H1||(isP?2500:2800);H2=H2||(isP?2500:2300)}
+  const beamH=isP?250:(r.zad?.belka?320:200), roofT=isP?0:120;
+  const wyp=(!isP&&r.zad?.wypust)?Math.min(num(r.zad.wypustMm)||0,B*0.6):0, postY=B-wyp, roofAt=y=>H1+(H2-H1)*y/B;
+  const fTop=isP?H1:(wyp?(num(r.zad?.h3)||roofAt(postY)-beamH):H2-beamH);
+  const wall=isP?(r.perg?.mocowanie==="Przyścienna"):(r.zad?.mocowanie!=="Wolnostojące");
+  const pr=(x,y,z)=>{const d=B-y;return [x+d*.55,-z-d*.36]};
+  // bounds
+  const pts=[[A+1500,B,0],[-1800,B*0.5,0],[-900,B,0],[-500,0,0],[A+500,0,0],[0,B,0],[A,B,0],[-500,0,Math.max(H1,H2)+(isP?beamH:roofT)+(wall?700:0)],[A+500,0,Math.max(H1,H2)+700]].map(q=>pr(...q));
+  const xs=pts.map(q=>q[0]),ys=pts.map(q=>q[1]),mnx=Math.min(...xs),mxx=Math.max(...xs),mny=Math.min(...ys),mxy=Math.max(...ys);
+  const k=Math.min((W-80)/(mxx-mnx),(Hh-90)/(mxy-mny)), ox=(W-(mxx-mnx)*k)/2-mnx*k, oy=40-mny*k; Hh=Math.round((mxy-mny)*k+80);
+  const P=(x,y,z)=>{const [a,b]=pr(x,y,z);return (ox+a*k).toFixed(1)+","+(oy+b*k).toFixed(1)};
+  const poly=(arr,f,st,sw=1,extra="")=>out.push(`<polygon points="${arr.map(q=>P(...q)).join(" ")}" fill="${f}" stroke="${st||"none"}" stroke-width="${sw}" ${extra}/>`);
+  const line=(a,b,st,sw)=>out.push(`<line x1="${P(...a).split(",")[0]}" y1="${P(...a).split(",")[1]}" x2="${P(...b).split(",")[0]}" y2="${P(...b).split(",")[1]}" stroke="${st}" stroke-width="${sw}" stroke-linecap="round"/>`);
+  const panel=(corners,t,div)=>{const f=fillFor(t);if(!f)return;poly(corners,f.f,col,1.2);
+    const [a,b,c,d]=corners; // a-b bottom edge, d-c top edge
+    if(f.lines==="v"){const n=Math.max(2,Math.min(10,div||3));for(let i=1;i<n;i++){const t2=i/n,lp=(u,v)=>u.map((q,j)=>q+(v[j]-q)*t2);line(lp(a,b),lp(d,c),"rgba(60,70,80,.55)",1)}}
+    if(f.lines==="h"){for(let i=1;i<9;i++){const t2=i/9,lp=(u,v)=>u.map((q,j)=>q+(v[j]-q)*t2);line(lp(a,d),lp(b,c),"rgba(255,255,255,.25)",1)}}};
+  // ground
+  poly([[-400,-200,0],[A+400,-200,0],[A+400,B+500,0],[-400,B+500,0]],"#E9ECEF","none");
+  // house wall
+  if(wall)poly([[-500,0,0],[A+500,0,0],[A+500,0,Math.max(H1,H2)+(isP?beamH:roofT)+700],[-500,0,Math.max(H1,H2)+(isP?beamH:roofT)+700]],"#D5D9DD","#B9BFC5");
+  const triL=!isP&&r.zad?.trojkatL?.on, triP=!isP&&r.zad?.trojkatP?.on;
+  const sideH=(x)=>isP?[[x,0,0],[x,B,0],[x,B,H1],[x,0,H1]]:((x===0?triL:triP)?[[x,0,0],[x,postY,0],[x,postY,fTop],[x,0,fTop]]:[[x,0,0],[x,postY,0],[x,postY,fTop],[x,0,H1-60]]);
+  const tri=(x,mat)=>{const f=fillFor(mat||"Szkło");poly([[x,0,fTop],[x,postY,fTop],[x,postY,Math.max(fTop,roofAt(postY)-60)],[x,0,H1-60]],f?f.f:"rgba(165,200,226,.42)",col,1.2)};
+  const sides=isP?r.pb||{}:r.zab||{}, zabOn=isP||(r.zab?.rodzaj&&r.zab.rodzaj!=="Bez zabudowy");
+  // far side (right) + back for pergola
+  if(zabOn&&sides.prawa?.on)panel(sideH(A),sides.prawa.typ,num(sides.prawa.skrzydla));
+  if(triP)tri(A,r.zad.trojkatP.mat);
+  if(isP&&sides.tyl?.on&&!wall)panel([[0,0,0],[A,0,0],[A,0,H1],[0,0,H1]],sides.tyl.typ,num(sides.tyl.skrzydla));
+  // posts
+  const post=(x,y,h)=>{const s=SLUP_MM;poly([[x,y,0],[x+s,y,0],[x+s,y,h],[x,y,h]],col,"rgba(0,0,0,.35)",1);poly([[x,y-s,0],[x,y,0],[x,y,h],[x,y-s,h]],col,"rgba(0,0,0,.35)",1,'opacity=".85"')};
+  if(isP&&!wall){post(0,SLUP_MM,H1);post(A-SLUP_MM,SLUP_MM,H1)}
+  // front posts & fields
+  let xsPost=[0,A-SLUP_MM], fields=[];
+  if(!isP){const fr=r.zab?.fr, n=r.zad?.belka?belkaSlupy(r.zad?.szer)-1:Math.max(1,(num(r.zad?.slupy)||2)-1), pola=(fr&&Array.isArray(fr.pola)?fr.pola:[]).slice(0,n);
+    const ws=pola.map(p=>num(p.szer)), known=ws.length===n&&ws.every(Boolean), inner=A-SLUP_MM*(n+1);
+    xsPost=[0];let x=SLUP_MM;for(let i=0;i<n;i++){const w=known?ws[i]*(inner/ws.reduce((a,b)=>a+b,0)):inner/n;fields.push({x0:x,x1:x+w,p:pola[i]||{}});x+=w;xsPost.push(x);x+=SLUP_MM}}
+  else{const pfr=r.pb?.fr, pp=(pfr&&Array.isArray(pfr.pola)?pfr.pola:[]);
+    if(pp.some(p=>p&&p.typ)){const n=pp.length, ws=pp.map(p=>num(p.szer)), known=ws.every(Boolean), inner=A-SLUP_MM*(n+1);
+      xsPost=[0];let x=SLUP_MM;for(let i=0;i<n;i++){const w=known?ws[i]*(inner/ws.reduce((a,b)=>a+b,0)):inner/n;fields.push({x0:x,x1:x+w,p:pp[i]||{}});x+=w;xsPost.push(x);x+=SLUP_MM}}
+    else{const f=sides.front;if(f?.on)fields.push({x0:SLUP_MM,x1:A-SLUP_MM,p:f})}}
+  const fz=fTop, fy=isP?B:postY;
+  if(zabOn)fields.forEach(f=>{if(!f.p||!f.p.typ)return;panel([[f.x0,fy,0],[f.x1,fy,0],[f.x1,fy,fz],[f.x0,fy,fz]],f.p.typ,num(f.p.skrzydla))});
+  xsPost.forEach(x=>post(x,fy,fz));
+  if(!isP&&wyp)poly([[0,postY,fz],[A,postY,fz],[A,postY,roofAt(postY)],[0,postY,roofAt(postY)]],col,"rgba(0,0,0,.35)",1);
+  // near side (left)
+  if(zabOn&&sides.lewa?.on)panel(sideH(0),sides.lewa.typ,num(sides.lewa.skrzydla));
+  if(triL)tri(0,r.zad.trojkatL.mat);
+  // roller blinds on planes
+  const rolGdzie=m=>{m=String(m||"").toLowerCase();if(/dach/.test(m))return "dach";if(/bok/.test(m)&&/lew/.test(m))return "lewa";if(/bok/.test(m)&&/praw/.test(m))return "prawa";return m?"front":""};
+  (r.rol||[]).forEach(o=>{const m=rolGdzie(o.miejsce),z=fz;
+    if(m==="front")poly([[SLUP_MM,fy+30,z*0.15],[A-SLUP_MM,fy+30,z*0.15],[A-SLUP_MM,fy+30,z],[SLUP_MM,fy+30,z]],"rgba(55,60,64,.55)","none");
+    if(m==="lewa")poly([[-30,0,0],[-30,fy,0],[-30,fy,z],[-30,0,isP?H1:H1-60]],"rgba(55,60,64,.5)","none");
+    if(m==="prawa")poly([[A+30,0,0],[A+30,fy,0],[A+30,fy,z],[A+30,0,isP?H1:H1-60]],"rgba(55,60,64,.5)","none");});
+  if(!isP){
+    // roof
+    const z=r.zad||{}, gl=/Szkło/.test(z.pokrycie||""), ml=/mleczn/i.test(z.pokrycie||"");
+    const gr=/grafit/i.test(z.pokrycie||""), rf=gr?"rgba(58,64,68,.62)":ml?"rgba(246,247,248,.88)":gl?"rgba(170,205,230,.42)":"rgba(200,222,238,.55)";
+    poly([[0,0,H1],[A,0,H1],[A,B,H2],[0,B,H2]],rf,col,1.5);
+    const nR=Math.max(2,Math.round(A/850)+1);for(let i=0;i<nR;i++){const x=i*(A-80)/(nR-1)+40;line([x,0,H1+roofT],[x,B,H2+roofT],col,Math.max(2,70*k))}
+    if((r.rol||[]).some(o=>rolGdzie(o.miejsce)==="dach"&&/dachowa/.test(o.typ||"")))poly([[60,40,H1+roofT+40],[A-60,40,H1+roofT+40],[A-60,B-80,H2+roofT+40],[60,B-80,H2+roofT+40]],"rgba(70,75,80,.55)","none");
+    if(z.led)for(let i=0;i<nR;i++){const x=i*(A-80)/(nR-1)+40;[.25,.5,.75].forEach(t=>{const q=P(x,B*t,H1+(H2-H1)*t-10).split(",");out.push(`<circle cx="${q[0]}" cy="${q[1]}" r="2.6" fill="#FFD27A"/>`)})}
+    // front beam (gutter)
+    const gH=wyp?130:beamH;
+    poly([[0,B,H2-gH],[A,B,H2-gH],[A,B,H2+roofT],[0,B,H2+roofT]],col,"rgba(0,0,0,.35)",1);
+    if(z.belka)ex.push("belka wzmacniająca");
+    if(wyp)ex.push(`wypust ${fmt(wyp)} mm`);
+  }else{
+    const p=r.perg||{};
+    poly([[0,0,H1],[A,0,H1],[A,B,H1],[0,B,H1]],"rgba(0,0,0,.04)","none");
+    poly([[0,0,H1],[A,0,H1],[A,0,H1+beamH],[0,0,H1+beamH]],col,"rgba(0,0,0,.35)",1);
+    poly([[A,0,H1],[A,B,H1],[A,B,H1+beamH],[A,0,H1+beamH]],col,"rgba(0,0,0,.35)",1,'opacity=".9"');
+    const along=!/Prostopad/.test(p.lamele||""),n=Math.round((along?B:A)/180);
+    for(let i=1;i<n;i++){const t=i/n;along?line([60,B*t,H1+beamH*.6],[A-60,B*t,H1+beamH*.6],col,Math.max(1.5,60*k)):line([A*t,60,H1+beamH*.6],[A*t,B-60,H1+beamH*.6],col,Math.max(1.5,60*k))}
+    // frame
+    poly([[0,B,H1],[A,B,H1],[A,B,H1+beamH],[0,B,H1+beamH]],col,"rgba(0,0,0,.35)",1);
+    poly([[0,0,H1+beamH],[0,B,H1+beamH],[0,B,H1],[0,0,H1]],col,"rgba(0,0,0,.35)",1,'opacity=".9"');
+    if(p.led)ex.push("LED");
+  }
+  // power
+  const w=r.warunki||{};
+  if(w.pradStrona&&w.prad!=="Brak"){const at=w.pradStrona==="Lewa"?[-500,B,400]:w.pradStrona==="Prawa"?[A+700,B,400]:[A/2,0,1100];const q=P(...at).split(",");
+    out.push(`<g><circle cx="${q[0]}" cy="${q[1]}" r="13" fill="#F4C430" stroke="#2F3438" stroke-width="1.5"/><path d="M${+q[0]+2},${+q[1]-8} l-6,9 h5 l-3,8 l8,-11 h-5 z" fill="#2F3438"/><text x="${+q[0]}" y="${+q[1]+28}" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#2F3438">prąd</text></g>`)}
+  // dimension labels
+  const lab=(xyz,t,anch="middle")=>{const q=P(...xyz).split(",");out.push(`<text x="${q[0]}" y="${q[1]}" text-anchor="${anch}" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#2F3438">${t}</text>`)};
+  lab([A/2,B+450,0],`A ${fmt(A)} mm`);
+  lab([-700,B*0.5,0],`B ${fmt(B)} mm`,"end");
+  if(isP)lab([A+250,B,H1/2],`H ${fmt(H1)}`,"start");else{lab([A+wyp*0.6+500,B,H2-150],`H2 ${fmt(H2)}`,"start");if(wall)lab([-120,0,H1],`H1 ${fmt(H1)}`,"end")}
+  const kol=(isP?r.perg?.kolor:r.zad?.kolor)||"kolor nie wybrany";
+  const cap=`${isP?"Pergola lamelowa":"Zadaszenie"} · ${kol}${ex.length?" · "+ex.join(", "):""}`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${Hh+40}" viewBox="0 0 ${W} ${Hh+40}" role="img" aria-label="Wizualizacja: ${esc(cap)}"><rect width="100%" height="100%" fill="#FFFFFF"/>${out.join("")}
+<rect x="0" y="${Hh+4}" width="${W}" height="36" fill="#353B3B"/><rect x="0" y="${Hh+4}" width="${W}" height="3" fill="#356DA1"/><text x="16" y="${Hh+27}" font-family="Arial,sans-serif" font-size="13" font-weight="bold" letter-spacing="3" fill="#FFFFFF">ALUBOSS</text><text x="${W-16}" y="${Hh+27}" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#C9CED3">${esc(cap)}${demo?" · przykładowe wymiary":""}</text></svg>`;
+}
+function renderViz(){const v=$("#viz");if(v)v.innerHTML=vizSVG(cur)}
+async function vizSave(){
+  const b=$("#btnVizSave");b.disabled=true;b.textContent="Zapisywanie…";
+  try{const svg=vizSVG(cur),img=new Image();
+    const m=svg.match(/viewBox="0 0 (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)"/), vw=m?+m[1]:640, vh=m?+m[2]:470;
+    await new Promise((res,rej)=>{img.onload=res;img.onerror=()=>rej(new Error("nie udało się narysować obrazu"));img.src="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg)});
+    const c=document.createElement("canvas");c.width=1600;c.height=Math.round(1600*vh/vw);const g=c.getContext("2d");g.fillStyle="#fff";g.fillRect(0,0,c.width,c.height);g.drawImage(img,0,0,c.width,c.height);
+    const r=await srv("uploadPhoto",c.toDataURL("image/png"),`wizualizacja-${safe(cur.klient?.imie)}-${Date.now()}.png`);
+    (cur.wizualizacje=cur.wizualizacje||[]).push({id:r.id});dirty=true;saveDraft();renderMedia();$("#dirty").hidden=false;toast("Zapisano wizualizację. Zapisz pomiar.")}
+  catch(e){toast("Nie zapisano wizualizacji: "+errMsg(e))}
+  finally{b.disabled=false;b.textContent="Zapisz wizualizację do pomiaru"}
+}
+
+/* ===== Zdjęcia i szkice (Dysk Google) ===== */
+const PHOTO_CACHE={};
+async function photoUrl(id,size){const k=size+":"+id;if(!PHOTO_CACHE[k])PHOTO_CACHE[k]=api("photo",{id,size}).catch(e=>{delete PHOTO_CACHE[k];throw e});return PHOTO_CACHE[k]}
+function loadThumbs(){document.querySelectorAll("img[data-ph]").forEach(img=>{if(img.dataset.loaded)return;img.dataset.loaded="1";photoUrl(img.dataset.ph,"mini").then(u=>img.src=u,()=>{img.alt="Brak podglądu (offline)"})})}
+async function openViewer(id){const v=$("#viewer"),im=$("#viewerImg");im.removeAttribute("src");v.hidden=false;try{im.src=await photoUrl(id,"full")}catch(e){v.hidden=true;toast("Nie wczytano zdjęcia: "+errMsg(e))}}
+function renderMedia(){
+  const card=(z,i,kind)=>`<div class="ph"><img data-ph="${esc(z.id)}" alt="${kind==="zdjecia"?"Zdjęcie":kind==="szkice"?"Szkic":"Wizualizacja"} ${i+1}"><a href="#" data-open-ph="${esc(z.id)}">Otwórz</a><button type="button" data-del-media="${kind}:${i}" aria-label="Usuń">×</button></div>`;
+  if($("#photos"))$("#photos").innerHTML=(cur.zdjecia||[]).map((z,i)=>card(z,i,"zdjecia")).join("");
+  if($("#sketches"))$("#sketches").innerHTML=(cur.szkice||[]).map((z,i)=>card(z,i,"szkice")).join("");
+  if($("#vizList"))$("#vizList").innerHTML=(cur.wizualizacje||[]).map((z,i)=>card(z,i,"wizualizacje")).join("");
+  loadThumbs();
+}
+async function shrink(file){
+  try{const bmp=await createImageBitmap(file);const k=Math.min(1,2000/Math.max(bmp.width,bmp.height));
+    const c=document.createElement("canvas");c.width=Math.round(bmp.width*k);c.height=Math.round(bmp.height*k);
+    c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);return c.toDataURL("image/jpeg",.82)}
+  catch(_){return await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(file)})}
+}
+const safe=t=>(t||"pomiar").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-zA-Z0-9]+/g,"-").slice(0,40);
+async function onPhotos(e){
+  const files=[...e.target.files];e.target.value="";if(!files.length)return;
+  const msg=$("#photoMsg");
+  for(let i=0;i<files.length;i++){msg.textContent=`Wysyłanie ${i+1} z ${files.length}…`;
+    try{const r=await srv("uploadPhoto",await shrink(files[i]),`${safe(cur.klient?.imie)}-${Date.now()}.jpg`);(cur.zdjecia=cur.zdjecia||[]).push({id:r.id});dirty=true;saveDraft();renderMedia();$("#dirty").hidden=false}
+    catch(err){toast(err instanceof NetErr?"Zdjęcia wymagają internetu. Dodaj je, gdy wróci zasięg.":"Nie wysłano zdjęcia: "+errMsg(err));if(err instanceof NetErr)break}}
+  msg.textContent="Pamiętaj, aby zapisać pomiar.";
+}
+/* Szkicownik */
+const SK={tool:"pen",color:"#1B2127",grid:true,items:[],cur:null,cv:null,ctx:null};
+function skInit(){
+  const cv=$("#skCanvas");if(!cv)return;SK.cv=cv;SK.ctx=cv.getContext("2d");SK.items=[];SK.cur=null;
+  const fit=()=>{const r=cv.getBoundingClientRect(),d=window.devicePixelRatio||1;if(!r.width)return;cv.width=Math.round(r.width*d);cv.height=Math.round(r.height*d);SK.ctx.setTransform(d,0,0,d,0,0);skDraw()};
+  fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(cv);
+  const pt=e=>{const r=cv.getBoundingClientRect();return {x:e.clientX-r.left,y:e.clientY-r.top}};
+  cv.addEventListener("pointerdown",e=>{e.preventDefault();cv.setPointerCapture(e.pointerId);const p=pt(e);
+    if(SK.tool==="text"){const t=$("#skText").value.trim();if(!t){toast("Wpisz tekst lub wymiar obok przycisku");$("#skText").focus();return}SK.items.push({k:"text",c:SK.color,x:p.x,y:p.y,t});skDraw();return}
+    SK.cur=SK.tool==="line"?{k:"line",c:SK.color,a:p,b:p}:{k:"pen",c:SK.color,pts:[p]};});
+  cv.addEventListener("pointermove",e=>{if(!SK.cur)return;const p=pt(e);
+    if(SK.cur.k==="pen")SK.cur.pts.push(p);
+    else{let {x,y}=p;const a=SK.cur.a,dx=x-a.x,dy=y-a.y,ang=Math.abs(Math.atan2(dy,dx)*180/Math.PI);
+      if(ang<6||ang>174)y=a.y;else if(Math.abs(ang-90)<6)x=a.x;SK.cur.b={x,y}}
+    skDraw();});
+  const end=()=>{if(SK.cur){SK.items.push(SK.cur);SK.cur=null;skDraw()}};
+  cv.addEventListener("pointerup",end);cv.addEventListener("pointercancel",end);
+}
+function skDraw(){
+  const {cv,ctx}=SK;if(!cv)return;const d=window.devicePixelRatio||1,W=cv.width/d,H=cv.height/d;
+  ctx.fillStyle="#fff";ctx.fillRect(0,0,W,H);
+  if(SK.grid){ctx.strokeStyle="#E6E9EC";ctx.lineWidth=1;ctx.beginPath();for(let x=20;x<W;x+=20){ctx.moveTo(x+.5,0);ctx.lineTo(x+.5,H)}for(let y=20;y<H;y+=20){ctx.moveTo(0,y+.5);ctx.lineTo(W,y+.5)}ctx.stroke()}
+  ctx.lineCap="round";ctx.lineJoin="round";
+  [...SK.items,SK.cur].filter(Boolean).forEach(it=>{ctx.strokeStyle=ctx.fillStyle=it.c;
+    if(it.k==="pen"){ctx.lineWidth=2.5;ctx.beginPath();it.pts.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.stroke()}
+    else if(it.k==="line"){ctx.lineWidth=2.5;ctx.beginPath();ctx.moveTo(it.a.x,it.a.y);ctx.lineTo(it.b.x,it.b.y);ctx.stroke();
+      if(it===SK.cur){const L=Math.hypot(it.b.x-it.a.x,it.b.y-it.a.y);ctx.font="12px sans-serif";ctx.fillStyle="#5E6873";ctx.fillText(Math.round(L/20)+" kratek",it.b.x+6,it.b.y-6)}}
+    else{ctx.font="600 16px Barlow, Arial, sans-serif";ctx.textBaseline="middle";ctx.fillText(it.t,it.x,it.y)}});
+}
+async function skSave(){
+  if(!SK.items.length){toast("Szkic jest pusty");return}
+  const b=$("#skSave");b.disabled=true;b.textContent="Zapisywanie szkicu…";
+  try{const r=await srv("uploadPhoto",SK.cv.toDataURL("image/png"),`szkic-${safe(cur.klient?.imie)}-${Date.now()}.png`);
+    (cur.szkice=cur.szkice||[]).push({id:r.id});SK.items=[];skDraw();dirty=true;saveDraft();renderMedia();$("#dirty").hidden=false;toast("Dodano szkic. Zapisz pomiar.")}
+  catch(e){toast("Nie zapisano szkicu: "+errMsg(e))}
+  finally{b.disabled=false;b.textContent="Dodaj szkic do pomiaru"}
+}
+function bindMedia(){
+  $("#photoIn").onchange=onPhotos;
+  document.querySelectorAll("[data-tool]").forEach(b=>b.onclick=()=>{SK.tool=b.dataset.tool;document.querySelectorAll("[data-tool]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));if(SK.tool==="text")$("#skText").focus()});
+  document.querySelectorAll("[data-color]").forEach(b=>b.onclick=()=>{SK.color=b.dataset.color;document.querySelectorAll("[data-color]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)))});
+  $("#skUndo").onclick=()=>{SK.items.pop();skDraw()};
+  $("#skClear").onclick=()=>{if(!SK.items.length)return;SK.items=[];skDraw();toast("Wyczyszczono szkic")};
+  $("#skGrid").onclick=e=>{SK.grid=!SK.grid;e.target.setAttribute("aria-pressed",String(SK.grid));skDraw()};
+  $("#skSave").onclick=skSave;
+  skInit();
+}
+
+let tt;function toast(t){const el=$("#toast");el.textContent=t;el.hidden=false;clearTimeout(tt);tt=setTimeout(()=>el.hidden=true,2800)}
+
+/* ===== Start ===== */
+const form=$("#viewForm");
+form.addEventListener("input",onField); form.addEventListener("change",onField);
+form.addEventListener("submit",e=>e.preventDefault());
+form.addEventListener("click",e=>{
+  const op=e.target.closest("[data-open-ph]");if(op){e.preventDefault();openViewer(op.dataset.openPh);return}
+  const dm=e.target.closest("[data-del-media]");if(dm){const [k,i]=dm.dataset.delMedia.split(":");cur[k].splice(+i,1);dirty=true;saveDraft();renderMedia();$("#dirty").hidden=false;return}
+  const sp=e.target.closest("[data-split]");if(sp){frSplit(sp.dataset.split);return}
+  if(e.target.id==="btnAddRol"){(cur.rol=cur.rol||[]).push({});dirty=true;saveDraft();renderRol();refresh();return}
+  const dr=e.target.closest("[data-del-rol]");if(dr){cur.rol.splice(+dr.dataset.delRol,1);dirty=true;saveDraft();renderRol();refresh();return}
+  if(e.target.id==="btnVizSave"){vizSave();return}
+  if(e.target.id==="btnAddPoz"){(cur.poz=cur.poz||[]).push({});dirty=true;saveDraft();renderPoz();fillForm();return}
+  const dp=e.target.closest("[data-del-poz]");if(dp){cur.poz.splice(+dp.dataset.delPoz,1);dirty=true;saveDraft();renderPoz();fillForm();return}
+  if(e.target.id!=="btnFillWalls")return;
+  const z=cur.zad||{}; cur.zab=cur.zab||{};
+  const put=(s,o)=>{cur.zab[s]=Object.assign({},cur.zab[s]);for(const k in o)if(o[k]&&!cur.zab[s][k])cur.zab[s][k]=o[k]};
+  const hF=z.wypust&&z.h3?z.h3:z.h2, dB=z.wypust&&num(z.wypustMm)&&num(z.wys)?String(num(z.wys)-num(z.wypustMm)):z.wys;
+  cur.zab.fr=Object.assign({},cur.zab.fr); if(hF&&!cur.zab.fr.wys)cur.zab.fr.wys=hF;
+  put("lewa",{szer:dB,wys:hF}); put("prawa",{szer:dB,wys:hF});
+  dirty=true;saveDraft();fillForm();toast(z.szer||z.wys?"Uzupełniono puste pola. Sprawdź je na miejscu.":"Najpierw wpisz wymiary zadaszenia");
+});
+$("#btnSave").addEventListener("click",save);
+$("#btnDel").addEventListener("click",del);
+$("#btnMail").addEventListener("click",()=>$("#mailSec").scrollIntoView({behavior:"smooth"}));
+$("#tabList").addEventListener("click",()=>{renderList();show("list");if(!dirty)loadRemote()});
+$("#tabZad").addEventListener("click",()=>startNew("zadaszenie"));
+$("#tabPerg").addEventListener("click",()=>startNew("pergola"));
+$("#tabZab").addEventListener("click",()=>startNew("zabudowa"));
+document.querySelectorAll("[data-new]").forEach(b=>b.addEventListener("click",()=>openRecord(null,b.dataset.new)));
+$("#q").addEventListener("input",renderList);
+$("#filters").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){filter=b.dataset.f;renderList()}});
+$("#rows").addEventListener("click",e=>{const b=e.target.closest("[data-open]");if(!b)return;const r=records.find(x=>x.id===b.dataset.open);if(r)openRecord(r)});
+$("#rows").addEventListener("change",e=>{const s=e.target.closest("[data-st]");if(!s)return;const r=records.find(x=>x.id===s.dataset.st);if(r){const v=s.value;s.disabled=true;srv("setStatus",r.id,v).then(n=>{Object.assign(r,n);renderList();toast("Status: "+v)},e=>{toast("Nie zmieniono: "+errMsg(e));renderList()})}});
+$("#btnRefresh").addEventListener("click",loadRemote);
+
+/* ===== Logowanie ===== */
+function authShow(which){["fServer","fSetup","fLogin"].forEach(id=>$("#"+id).hidden=id!==which);$("#authWait").hidden=!!which;$("#auth").hidden=false}
+function authHide(){$("#auth").hidden=true}
+function setSession(d){TOKEN=d.token;ME=d.user;ls.set("al_token",TOKEN);ls.set("al_me",JSON.stringify(ME));applyMe()}
+function applyMe(){$("#who").textContent=ME?ME.imie:"";$("#btnTeam").hidden=!(ME&&ME.rola==="Administrator")}
+function sessionLost(msg){TOKEN="";ME=null;ls.del("al_token");ls.del("al_me");authShow("fLogin");$("#l_err").textContent=msg||"Zaloguj się ponownie"}
+async function authStart(){
+  if(!API_URL){authShow("fServer");return}
+  if(TOKEN){applyMe();authHide();startApp();return}
+  authShow(null);
+  try{const d=await api("needsSetup");authShow(d.needsSetup?"fSetup":"fLogin")}
+  catch(e){authShow("fLogin");$("#l_err").textContent=errMsg(e)}
+}
+$("#fServer").addEventListener("submit",async e=>{e.preventDefault();const u=$("#s_url").value.trim();
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(u)){$("#s_err").textContent="Adres musi zaczynać się od https://script.google.com/macros/s/ i kończyć na /exec";return}
+  API_URL=u;try{await api("ping");ls.set("al_api",u);authStart()}catch(err){API_URL="";$("#s_err").textContent="Nie udało się połączyć: "+errMsg(err)}});
+$("#fSetup").addEventListener("submit",async e=>{e.preventDefault();$("#su_err").textContent="";
+  try{setSession(await api("setupAdmin",{imie:$("#su_imie").value.trim(),email:$("#su_email").value.trim(),haslo:$("#su_haslo").value}));authHide();startApp();toast("Konto administratora gotowe. Dodaj zespół w „Zespół”.")}
+  catch(err){$("#su_err").textContent=errMsg(err)}});
+$("#fLogin").addEventListener("submit",async e=>{e.preventDefault();const b=$("#l_btn");b.disabled=true;$("#l_err").textContent="";
+  try{setSession(await api("login",{email:$("#l_email").value.trim(),haslo:$("#l_haslo").value}));$("#l_haslo").value="";authHide();startApp()}
+  catch(err){$("#l_err").textContent=errMsg(err)}finally{b.disabled=false}});
+$("#btnLogout").addEventListener("click",async()=>{try{await api("logout")}catch(_){}sessionLost("Wylogowano");records=[];show("list")});
+$("#a_save").addEventListener("click",async()=>{try{await api("changePassword",{stare:$("#a_old").value,nowe:$("#a_new").value});$("#a_old").value=$("#a_new").value="";toast("Zmieniono hasło")}catch(e){toast(errMsg(e))}});
+$("#btnTeam").addEventListener("click",()=>show("team"));
+$("#btnAccount").addEventListener("click",()=>show("account"));
+document.querySelectorAll("[data-back]").forEach(b=>b.addEventListener("click",()=>show("list")));
+$("#viewerClose").addEventListener("click",()=>$("#viewer").hidden=true);
+
+/* ===== Zespół (administrator) ===== */
+let TEAM_LIST=[];
+function renderTeam(){
+  $("#t_names").innerHTML=POMIAROWCY.concat(OPIEKUNOWIE).map(n=>`<option value="${esc(n)}">`).join("");
+  $("#teamRows").innerHTML=TEAM_LIST.length?TEAM_LIST.map(u=>`<div class="team-row ${u.aktywny?"":"off"}">
+    <strong>${esc(u.imie||"—")}</strong>
+    <label class="sw"><input type="checkbox" data-act="${esc(u.email)}" ${u.aktywny?"checked":""} ${ME&&u.email===ME.email?"disabled":""}>Aktywny</label>
+    <span class="meta"><span>${esc(u.email||"brak e-maila")}</span><span class="chip">${esc(u.rola)}</span>${u.maHaslo?"":`<span class="chip s-0">bez hasła</span>`}<button class="btn sm" type="button" data-edit="${esc(u.email)}">Edytuj / nowe hasło</button></span>
+  </div>`).join(""):`<div class="team-row"><span class="muted">Brak osób. Dodaj pierwszą poniżej.</span></div>`;
+}
+async function loadTeam(){try{TEAM_LIST=await api("team");renderTeam()}catch(e){toast(errMsg(e))}}
+$("#teamRows").addEventListener("change",async e=>{const c=e.target.closest("[data-act]");if(!c)return;c.disabled=true;
+  try{TEAM_LIST=await api("teamActive",{email:c.dataset.act,active:c.checked});renderTeam();toast(c.checked?"Przywrócono dostęp":"Odebrano dostęp")}catch(err){toast(errMsg(err));loadTeam()}});
+$("#teamRows").addEventListener("click",e=>{const b=e.target.closest("[data-edit]");if(!b)return;const u=TEAM_LIST.find(x=>x.email===b.dataset.edit);if(!u)return;
+  $("#t_imie").value=u.imie;$("#t_email").value=u.email;$("#t_rola").value=u.rola;$("#t_haslo").value="";$("#teamFormTitle").textContent="Edytuj: "+u.imie;$("#t_haslo").focus()});
+$("#t_clear").addEventListener("click",()=>{["t_imie","t_email","t_haslo"].forEach(i=>$("#"+i).value="");$("#t_rola").value="Pracownik";$("#teamFormTitle").textContent="Dodaj osobę"});
+$("#t_save").addEventListener("click",async()=>{const u={imie:$("#t_imie").value.trim(),email:$("#t_email").value.trim(),rola:$("#t_rola").value,haslo:$("#t_haslo").value};
+  const exists=TEAM_LIST.some(x=>x.email===u.email.toLowerCase()&&x.maHaslo);
+  if(!exists&&!u.haslo){toast("Ustaw hasło dla nowej osoby");return}
+  try{TEAM_LIST=await api("teamSave",{user:u});renderTeam();$("#t_clear").click();toast("Zapisano osobę")}catch(e){toast(errMsg(e))}});
+
+/* ===== Start ===== */
+let started=false;
+function startApp(){
+  if(started){loadRemote();return} started=true;
+  try{records=JSON.parse(ls.get("al_cache")||"[]")}catch(_){records=[]} applyQueueToList(); if(records.length){loaded=true;renderList()}
+  loadRemote();
+  try{const d=JSON.parse(localStorage.getItem(DRAFT)||"null");if(d&&d.id&&d.typ){cur=d;dirty=true;buildForm();fillForm();show("form")}else show("list")}catch(_){show("list")}
+}
+renderQueueInfo();
+authStart();
+})();
+</script>
+</body>
+</html>
