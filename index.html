@@ -721,7 +721,7 @@ class NetErr extends Error{}
 async function api(action,payload){
   if(!API_URL)throw new Error("Brak adresu serwera");
   let res;
-  try{res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({action,token:TOKEN},payload||{})),redirect:"follow"})}
+  try{res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(Object.assign({action,token:TOKEN},payload||{})),redirect:"follow",credentials:"omit",cache:"no-store"})}
   catch(e){throw new NetErr("Brak połączenia z internetem")}
   let j; try{j=await res.json()}catch(e){throw new Error("Serwer nie odpowiada poprawnie. Sprawdź adres API.")}
   if(!j.ok){const m=String(j.error||"Błąd");if(/^SESJA:/.test(m)){sessionLost(m.replace(/^SESJA:\s*/,""))}throw new Error(m.replace(/^SESJA:\s*/,""))}
