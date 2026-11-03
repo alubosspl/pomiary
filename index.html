@@ -317,7 +317,7 @@ const TYP_NAZWA={zadaszenie:"Zadaszenie + zabudowa",zabudowa:"Zabudowa",pergola:
 const ROL_TYPY=["ZIP pionowy","Roleta dachowa veranda (na dachu)","Roleta podszybowa veranda (pod dachem)"];
 const RAL_HEX={"7016":"#383E42","9006":"#A1A1A0","9010":"#F1ECE1","8014":"#4A3526"};
 const SLUP_MM=110;
-const belkaSlupy=A=>(num(A)||0)>7000?3:2; // belka: do 7 m – 2 słupy, 8–14 m – 3 słupy // słup 11 × 11 cm
+const belkaSlupy=A=>Math.max(2,Math.ceil((num(A)||0)/7000)+1); // belka: do 7 m – 2 słupy, do 14 m – 3, do 21 m – 4 // słup 11 × 11 cm
 const MONTAZ=["Na beton","Profil U"];
 const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Screen ZIP","Bez zabudowy (wejście)"];
 const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Screen ZIP"];
@@ -489,7 +489,7 @@ function zadBody(){return headSection()+`
     ${cnt("zad.slupyTyl","Ilość słupów tył (szt.)")}
     ${mm("zad.dlugoscSlupa","Długość słupów","opcjonalnie, jeśli inna niż standard")}
   </div>
-  ${chk("zad.belka","Belka wzmacniająca (korygująca): do 7 m na 2 słupach, 8–14 m na 3 słupach")}
+  ${chk("zad.belka","Belka wzmacniająca (korygująca): do 7 m – 2 słupy, do 14 m – 3 słupy, do 21 m – 4 słupy")}
   ${chk("zad.wypust","Zadaszenie z wypustem (dach wysunięty przed słupy)")}
   <div class="grid g3" data-show="zad.wypust">
     ${mm("zad.wypustMm","Długość wypustu","od lica słupów do końca dachu","W")}
@@ -806,7 +806,7 @@ function calcZad(){
   if(A&&A>7000&&!num(z.slupy)&&!z.belka)warns.push("Szerokość powyżej 7 m: wpisz liczbę słupów.");
   if(z.wypust&&!num(z.wypustMm))warns.push("Zaznaczono wypust: wpisz jego długość (W).");
   if(z.wypust&&num(z.wypustMm)&&B&&num(z.wypustMm)>=B)warns.push("Wypust nie może być dłuższy niż cały wysięg B.");
-  if(z.belka&&A&&A>14000)warns.push("Belka wzmacniająca działa do 14 m. Powyżej skonsultuj konstrukcję z technikiem.");
+  if(z.belka&&A&&A>21000)warns.push("Belka wzmacniająca: powyżej 21 m skonsultuj konstrukcję z technikiem.");
   const w=$("#cWarn"); w.hidden=!warns.length; w.innerHTML=warns.map(t=>`<div class="warn">${esc(t)}</div>`).join("");
 }
 function calcPerg(){
