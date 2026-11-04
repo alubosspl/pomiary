@@ -308,8 +308,8 @@ const OPIEKUNOWIE=["Marlena","Wiktoria","Madzia","Karolina"];
 const STATUSY=["Zaplanowany","Pomiar wykonany","Mail wysłany"];
 const KOLORY=["Antracyt struktura RAL 7016ST","Srebrno-szary struktura RAL 9006ST","Biały gładki RAL 9010","Sepia-brąz struktura RAL 8014ST","Inny kolor RAL (za dopłatą)"];
 const POKRYCIA=["Poliwęglan 16 mm mleczny","Poliwęglan 16 mm przeźroczysty","Poliwęglan 16 mm grafit","Szkło VSG 44.2 przeźroczyste","Szkło VSG 44.2 mleczne","Szkło VSG 44.2 grafit"];
-const ZAB_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Screen ZIP"];
-const PERG_BOKI=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Panel aluminiowy","Screen ZIP"];
+const ZAB_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP"];
+const PERG_BOKI=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP"];
 const BIURO={tel:"78 472 88 66",mail:"dzialhandlowy@aluboss.pl",www:"aluboss.pl"};
 const STRONY_ZAD=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa",klin:false},{k:"lewa",n:"Bok lewy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true},{k:"prawa",n:"Bok prawy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true}];
 const STRONY_PERG=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa"},{k:"lewa",n:"Bok lewy",a:"Wys. lewa",b:"Wys. prawa"},{k:"prawa",n:"Bok prawy",a:"Wys. lewa",b:"Wys. prawa"},{k:"tyl",n:"Tył",a:"Wys. lewa",b:"Wys. prawa"}];
@@ -319,8 +319,11 @@ const RAL_HEX={"7016":"#383E42","9006":"#A1A1A0","9010":"#F1ECE1","8014":"#4A352
 const SLUP_MM=110;
 const belkaSlupy=A=>Math.max(2,Math.ceil((num(A)||0)/7000)+1); // belka: do 7 m – 2 słupy, do 14 m – 3, do 21 m – 4 // słup 11 × 11 cm
 const MONTAZ=["Na beton","Profil U"];
-const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Screen ZIP","Bez zabudowy (wejście)"];
-const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Screen ZIP"];
+const zadSlupy=z=>{z=z||{};return z.belka?(num(z.slupy)||belkaSlupy(z.szer)):Math.max(2,num(z.slupy)||2)};
+const slupTxt=n=>n==1?"1 słup":`${n} słupy`;
+const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP","Bez zabudowy (wejście)"];
+const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP"];
+const CZ_TYPY=["Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Drzwi aluminiowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Screen ZIP"];
 const KLIN_MAT=["Szkło VSG 8,76 mm","Poliwęglan 16 mm","Panel aluminiowy"];
 const PILOT=["1-kanałowy","5-kanałowy","15-kanałowy","Inny"];
 const szt=n=>`${fmt(num(n))} szt.`;
@@ -349,24 +352,35 @@ const chk=(k,l)=>`<label class="check" for="${fid(k)}"><input type="checkbox" id
 function extraFields(p){return `
    <div class="grid g3" data-show-has="${p}.typ~przesuwne">
     ${cnt(p+".skrzydla","Liczba skrzydeł")}
-    ${seg(p+".parkowanie","Strona parkowania skrzydeł",["Lewa","Prawa","Obie strony"])}
+    ${seg(p+".parkowanie","Strona parkowania skrzydeł (patrząc od środka)",["Lewa","Prawa","Obie strony"])}
    </div>
    <div data-show-has="${p}.typ~przesuwne">${chk(p+".maskownica","Maskownica do szyb przesuwnych")}</div>
-   <div data-show-has="${p}.typ~ZIP">${seg(p+".strona","Strona silnika ZIP",["Lewa","Prawa"])}</div>
+   <div data-show-has="${p}.typ~ZIP">${seg(p+".strona","Strona silnika ZIP (patrząc od środka)",["Lewa","Prawa"])}</div>
+   <div class="grid" data-show-has="${p}.typ~Drzwi">${seg(p+".zawiasy","Zawiasy (patrząc od środka)",["Lewe","Prawe"])}${seg(p+".otwieranie","Otwierane",["Na zewnątrz","Do środka"])}</div>
+   <div class="grid g3" data-show-has="${p}.typ~Drzwi">${sel(p+".kolorDrzwi","Kolor drzwi",KOLORY)}</div>
    <div class="grid g3" data-show-has="${p}.typ~Panel">${sel(p+".kolorPanelu","Kolor paneli aluminiowych",KOLORY)}<div data-show-has="${p}.kolorPanelu~Inny">${txt(p+".kolorPaneluInny","Numer RAL paneli","text","np. RAL 7022")}</div></div>
    <div data-show-has="${p}.typ~^Ściana stała$">${seg(p+".material","Wypełnienie ściany stałej",["Szkło VSG 8,76 mm","Poliwęglan 16 mm"])}</div>`}
 function sideCard(pre,s,types,withKlin){const p=pre+"."+s.k;return `<div class="card">
   <div class="card-head"><h3>${s.n}</h3>${chk(p+".on","Zabudowa tej strony")}</div>
   <div data-show="${p}.on" style="display:flex;flex-direction:column;gap:12px">
    <div class="grid g3">
-    ${sel(p+".typ","Rodzaj",types)}
-    ${mm(p+".szer","Szerokość")}
+    <div data-hide="${p}.podzial">${sel(p+".typ","Rodzaj",types)}</div>
+    ${mm(p+".szer","Szerokość","cała strona")}
     ${mm(p+".wys","Wysokość")}
    </div>
-   ${extraFields(p)}
+   ${chk(p+".podzial","Podziel ręcznie na części (np. 2 m drzwi aluminiowe + 2 m szyby ramowe)")}
+   <div data-show="${p}.podzial" style="display:flex;flex-direction:column;gap:10px"><div data-czesci="${p}" style="display:flex;flex-direction:column;gap:10px"></div><div><button type="button" class="btn sm" data-add-cz="${p}">+ Dodaj część</button></div><div class="frsum" data-czsum="${p}"></div></div>
+   <div data-hide="${p}.podzial">${extraFields(p)}</div>
+   <div class="frsvg" data-sidesvg="${p}" data-side="${s.k}" data-pre="${pre}"></div>
    ${withKlin?`${chk(p+".klin","Trójkąt nad ścianą (pod dachem)")}<div data-show="${p}.klin" class="grid g3">${sel(p+".klinTyp","Z czego trójkąt",KLIN_MAT)}</div>`:""}
   </div></div>`}
 
+function czCard(p,i){const q=p+".czesci."+i;return `<div class="pole">
+  <div class="card-head"><h4>Część ${i+1}</h4><button type="button" class="btn sm" data-del-cz="${p}|${i}">Usuń</button></div>
+  ${sel(q+".typ","Rodzaj",CZ_TYPY)}
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">${mm(q+".szer","Szerokość")}${mm(q+".wys","Wysokość","jeśli inna niż strona")}</div>
+  ${extraFields(q)}
+</div>`}
 function headSection(){return `
 <section class="blk" style="border-top:0">
   ${seg("wykonanie","Wykonanie",["Standard","Na wymiar"])}
@@ -490,6 +504,7 @@ function zadBody(){return headSection()+`
     ${mm("zad.dlugoscSlupa","Długość słupów","opcjonalnie, jeśli inna niż standard")}
   </div>
   ${chk("zad.belka","Belka wzmacniająca (korygująca): do 7 m – 2 słupy, do 14 m – 3 słupy, do 21 m – 4 słupy")}
+  <span class="hint" data-show="zad.belka">Liczba słupów podpowiada się sama z szerokości. Możesz ją zmienić w polu „Ilość słupów przód”.</span>
   ${chk("zad.wypust","Zadaszenie z wypustem (dach wysunięty przed słupy)")}
   <div class="grid g3" data-show="zad.wypust">
     ${mm("zad.wypustMm","Długość wypustu","od lica słupów do końca dachu","W")}
@@ -499,6 +514,10 @@ function zadBody(){return headSection()+`
   <div class="grid">
     <div class="fld">${chk("zad.trojkatL.on","Trójkąt lewy")}<div data-show="zad.trojkatL.on">${sel("zad.trojkatL.mat","Z czego",KLIN_MAT)}</div></div>
     <div class="fld">${chk("zad.trojkatP.on","Trójkąt prawy")}<div data-show="zad.trojkatP.on">${sel("zad.trojkatP.mat","Z czego",KLIN_MAT)}</div></div>
+  </div>
+  <div class="sec-head"><h3>Element wolnostojący</h3><span class="muted">Gdy zadaszenie wystaje poza budynek (z boku)</span></div>
+  <div class="grid">
+    ${["L","P"].map(k=>`<div class="fld">${chk("zad.wolno"+k+".on","Element wolnostojący "+(k==="L"?"lewy":"prawy")+" (patrząc od domu)")}<div data-show="zad.wolno${k}.on" style="display:flex;flex-direction:column;gap:10px">${mm("zad.wolno"+k+".dl","Ile wystaje poza budynek","od narożnika budynku do końca zadaszenia")}${seg("zad.wolno"+k+".slupy","Słupy do elementu",["1 słup","2 słupy"])}</div></div>`).join("")}
   </div>
   <div class="grid">
     ${seg("zad.mocowanie","Mocowanie",["Przyścienne","Wolnostojące"])}
@@ -549,7 +568,7 @@ function frontCfg(path,own){return `<div class="card" data-front="${path}">
   <div class="frpola" data-frpola></div>
 </div>`}
 function frPosts(path){
-  if(path==="zab.fr"){const z=cur.zad||{};return z.belka?belkaSlupy(z.szer):Math.max(2,num(z.slupy)||2)}
+  if(path==="zab.fr")return zadSlupy(cur.zad)
   return Math.max(2,num(getP(cur,path+".slupy"))||2);
 }
 function frTotal(path){return path==="zab.fr"?num(cur.zad?.szer):(num(getP(cur,path+".szer"))||(path==="pb.fr"?num(cur.perg?.szer):null))}
@@ -577,14 +596,18 @@ function frSVG(path,c){
     else if(/przesuwne/.test(t)){const k=Math.max(1,Math.min(10,num(p.skrzydla)||3)),sw=(w-4)/k;
       g+=`<rect class="fr-glass" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;
       for(let j=1;j<k;j++)g+=`<line class="fr-gl" x1="${x+2+sw*j}" y1="${top+2}" x2="${x+2+sw*j}" y2="${bot-2}"/>`;
-      if(/ramowe/.test(t)&&!/bezramowe/.test(t))for(let j=0;j<k;j++)g+=`<rect class="fr-frame" x="${x+3+sw*j}" y="${top+3}" width="${sw-2}" height="${h-6}"/>`;}
+      if(/ramowe/.test(t)&&!/bezramowe/.test(t))for(let j=0;j<k;j++)g+=`<rect class="fr-frame" x="${x+3+sw*j}" y="${top+3}" width="${sw-2}" height="${h-6}"/>`;
+      const pk=p.parkowanie||"",ay=top+h*0.35,ar=(a,b)=>{g+=`<line x1="${a}" y1="${ay}" x2="${b}" y2="${ay}" stroke="#356DA1" stroke-width="3" marker-end="url(#arrF)"/>`};
+      if(/Lewa|Obie/.test(pk))ar(x+w*0.5,x+10); if(/Prawa|Obie/.test(pk))ar(x+w*0.5,x+w-10);}
+    else if(/Drzwi/.test(t)){g+=`<rect class="fr-fix" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="fill:rgba(120,128,134,.35)"/><rect x="${x+w*0.18}" y="${top+8}" width="${w*0.64}" height="${h-10}" fill="none" style="stroke:var(--ink)" stroke-width="1.5"/>`;}
     else if(/ZIP/.test(t)){g+=`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;for(let y=top+10;y<bot;y+=8)g+=`<line class="fr-zl" x1="${x+2}" y1="${y}" x2="${x+w-2}" y2="${y}"/>`}
     else g+=`<rect class="fr-open" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;
     g+=`<text class="fr-n" x="${x+w/2}" y="${top+(bot-top)/2+4}" text-anchor="middle">${i+1}</text>`;
     g+=`<text class="fr-w" x="${x+w/2}" y="${bot+16}" text-anchor="middle">${ws[i]?fmt(ws[i]):"?"}</text>`;
     x+=w; g+=`<rect class="fr-post" x="${x}" y="${top}" width="${pw}" height="${bot-top}"/>`; x+=pw;});
   g+=`<line x1="0" y1="${bot}" x2="340" y2="${bot}" stroke="currentColor" style="stroke:var(--muted)" stroke-width="2"/>`;
-  return `<svg viewBox="0 0 340 176" role="img" aria-label="Widok frontu: ${n+1} słupy, ${n} pól">${g}</svg>`;
+  g+=`<text class="fr-w" x="170" y="${bot+30}" text-anchor="middle" style="font-weight:700">WIDOK OD ŚRODKA (spod zadaszenia, lewo = lewy bok)</text>`;
+  return `<svg viewBox="0 0 340 188" role="img" aria-label="Widok frontu od środka: ${n+1} słupy, ${n} pól"><defs><marker id="arrF" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#356DA1"/></marker></defs>${g}</svg>`;
 }
 function frRender(){
   document.querySelectorAll("#viewForm [data-front]").forEach(card=>{
@@ -598,6 +621,43 @@ function frRender(){
     if(tot&&ws.every(Boolean)&&Math.abs(sum-tot)>20)h+=`<span class="warn">Różnica ${fmt(sum-tot)} mm. Sprawdź szerokości pól.</span>`;
     card.querySelector("[data-frsum]").innerHTML=h;
   });
+}
+function czRender(){
+  document.querySelectorAll("#viewForm [data-czesci]").forEach(box=>{const p=box.dataset.czesci, w=getP(cur,p)||{}, L=Array.isArray(w.czesci)?w.czesci:[];
+    if(box.childElementCount!==L.length){box.innerHTML=L.map((_,i)=>czCard(p,i)).join("");fillIn(box);showRules(box)}
+    const sm=document.querySelector(`[data-czsum="${p}"]`); if(!sm)return;
+    const ws=L.map(c=>num(c.szer)||0), sum=ws.reduce((a,b)=>a+b,0), tot=num(w.szer);
+    let h=`<span>Suma części: <b>${sum?fmt(sum)+" mm":"—"}</b></span><span>Szerokość strony: <b>${tot?fmt(tot)+" mm":"—"}</b></span>`;
+    if(tot&&sum&&Math.abs(sum-tot)>20)h+=`<span class="warn">Różnica ${fmt(sum-tot)} mm. Sprawdź szerokości części.</span>`;
+    sm.innerHTML=L.length?h:`<span class="muted">Dodaj części od lewej, patrząc od środka.</span>`;});
+}
+const SIDE_ENDS={zab:{lewa:["front (słup)","budynek"],prawa:["budynek","front (słup)"]},pb:{lewa:["front","tył"],prawa:["tył","front"],tyl:["bok prawy","bok lewy"]}};
+function segSVG(g,t,x,w,top,bot,w0){const h=bot-top;
+  if(/stała/.test(t))g.push(`<rect class="fr-fix" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/><line class="fr-gl" x1="${x+8}" y1="${bot-10}" x2="${x+w-8}" y2="${top+10}"/>`);
+  else if(/przesuwne/.test(t)){const k=Math.max(1,Math.min(10,num(w0.skrzydla)||3)),sw=(w-4)/k;
+    g.push(`<rect class="fr-glass" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`);
+    for(let j=1;j<k;j++)g.push(`<line class="fr-gl" x1="${x+2+sw*j}" y1="${top+2}" x2="${x+2+sw*j}" y2="${bot-2}"/>`);
+    if(/ramowe/.test(t)&&!/bezramowe/.test(t))for(let j=0;j<k;j++)g.push(`<rect class="fr-frame" x="${x+3+sw*j}" y="${top+3}" width="${sw-2}" height="${h-6}"/>`);
+    const pk=w0.parkowanie||"", ay=top+h*0.5, ar=(x1,x2)=>g.push(`<line x1="${x1}" y1="${ay}" x2="${x2}" y2="${ay}" stroke="#356DA1" stroke-width="3" marker-end="url(#arr)"/>`);
+    if(/Lewa|Obie/.test(pk))ar(x+w*0.5,x+12); if(/Prawa|Obie/.test(pk))ar(x+w*0.5,x+w-12);}
+  else if(/Drzwi/.test(t)){g.push(`<rect class="fr-fix" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="fill:rgba(120,128,134,.35)"/><rect x="${x+w*0.18}" y="${top+8}" width="${w*0.64}" height="${h-10}" fill="none" stroke="currentColor" style="stroke:var(--ink)" stroke-width="1.5"/>`);
+    const hx=w0.zawiasy==="Lewe"?x+w*0.78:x+w*0.24; g.push(`<circle cx="${hx}" cy="${top+h*0.55}" r="3" style="fill:var(--ink)"/>`);}
+  else if(/ZIP/.test(t)){g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`);for(let y=top+10;y<bot;y+=8)g.push(`<line class="fr-zl" x1="${x+2}" y1="${y}" x2="${x+w-2}" y2="${y}"/>`)}
+  else if(/Panel/.test(t)){g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:.7"/>`)}
+  else g.push(`<rect class="fr-open" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`);
+}
+function sideRender(){
+  document.querySelectorAll("#viewForm [data-sidesvg]").forEach(box=>{const p=box.dataset.sidesvg, w=getP(cur,p)||{}, pre=box.dataset.pre, side=box.dataset.side;
+    const parts=w.podzial&&Array.isArray(w.czesci)&&w.czesci.length?w.czesci:[w];
+    if(!w.on||!parts.some(c=>c&&c.typ)){box.innerHTML="";return}
+    const ends=(SIDE_ENDS[pre]||{})[side]||["lewo","prawo"], W=320,X0=10,top=30,bot=140,ws=parts.map(c=>num(c.szer)), known=ws.every(Boolean), sum=known?ws.reduce((a,b)=>a+b,0):parts.length;
+    const g=[`<defs><marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#356DA1"/></marker></defs>`];
+    g.push(`<rect class="fr-beam" x="${X0}" y="${top-8}" width="${W}" height="8"/>`);
+    let x=X0; parts.forEach((c,i)=>{const pw=W*(known?ws[i]/sum:1/parts.length);segSVG(g,c.typ||"",x,pw,top,bot,c);if(parts.length>1){g.push(`<text class="fr-n" x="${x+pw/2}" y="${top+16}" text-anchor="middle">${i+1}</text>`)}g.push(`<text class="fr-w" x="${x+pw/2}" y="${bot+14}" text-anchor="middle">${ws[i]?fmt(ws[i]):"?"}</text>`);if(i)g.push(`<line x1="${x}" y1="${top}" x2="${x}" y2="${bot}" style="stroke:var(--ink)" stroke-width="3"/>`);x+=pw});
+    g.push(`<line x1="0" y1="${bot}" x2="340" y2="${bot}" style="stroke:var(--muted)" stroke-width="2"/>`);
+    g.push(`<text class="fr-w" x="${X0}" y="${top-12}">← ${ends[0]}</text><text class="fr-w" x="${X0+W}" y="${top-12}" text-anchor="end">${ends[1]} →</text>`);
+    g.push(`<text class="fr-w" x="170" y="${bot+30}" text-anchor="middle" style="font-weight:700">WIDOK OD ŚRODKA (spod zadaszenia)</text>`);
+    box.innerHTML=`<svg viewBox="0 0 340 178" role="img" aria-label="${esc(ends[0]+" – "+ends[1])}, widok od środka">${g.join("")}</svg>`;});
 }
 function frSplit(path){
   const c=frSync(path), tot=frTotal(path); if(!tot){toast(path==="zab.fr"?"Najpierw wpisz szerokość zadaszenia (A)":"Najpierw wpisz szerokość całego frontu");return}
@@ -782,11 +842,11 @@ function fillForm(){fillIn($("#viewForm"));refresh()}
 function showRules(root){
   root.querySelectorAll("[data-show]").forEach(el=>{el.hidden=!getP(cur,el.dataset.show)});
   root.querySelectorAll("[data-show-has]").forEach(el=>{const [k,re]=el.dataset.showHas.split("~");el.hidden=!new RegExp(re).test(getP(cur,k)||"")});
+  root.querySelectorAll("[data-hide]").forEach(el=>{el.hidden=!!getP(cur,el.dataset.hide)});
 }
 function refresh(){
-  if(cur.typ==="zadaszenie"&&cur.zad?.belka){const n=String(belkaSlupy(cur.zad.szer));if(cur.zad.slupy!==n){cur.zad.slupy=n;const sl=$("#"+fid("zad.slupy"));if(sl)sl.value=n}}
-  frRender(); showRules($("#viewForm"));
-  const sl=$("#"+fid("zad.slupy")); if(sl)sl.disabled=!!cur.zad?.belka;
+  if(cur.typ==="zadaszenie"&&cur.zad?.belka&&!cur.zad.slupyRecznie){const n=String(belkaSlupy(cur.zad.szer));if(cur.zad.slupy!==n){cur.zad.slupy=n;const sl=$("#"+fid("zad.slupy"));if(sl&&document.activeElement!==sl)sl.value=n}}
+  frRender(); czRender(); showRules($("#viewForm")); sideRender();
   if(cur.typ==="pergola")calcPerg(); else if(cur.typ==="zadaszenie")calcZad();
   $("#formTitle").textContent=cur.klient?.imie||({pergola:"Nowa pergola lamelowa",zabudowa:"Nowa zabudowa"}[cur.typ]||"Nowe zadaszenie");
   $("#dirty").hidden=!dirty;
@@ -807,6 +867,8 @@ function calcZad(){
   if(z.wypust&&!num(z.wypustMm))warns.push("Zaznaczono wypust: wpisz jego długość (W).");
   if(z.wypust&&num(z.wypustMm)&&B&&num(z.wypustMm)>=B)warns.push("Wypust nie może być dłuższy niż cały wysięg B.");
   if(z.belka&&A&&A>21000)warns.push("Belka wzmacniająca: powyżej 21 m skonsultuj konstrukcję z technikiem.");
+  if(z.belka&&A&&num(z.slupy)&&num(z.slupy)<belkaSlupy(A))warns.push(`Z belką przy tej szerokości zalecane są ${belkaSlupy(A)} słupy z przodu (wpisano ${fmt(num(z.slupy))}).`);
+  [["L","lewy"],["P","prawy"]].forEach(([k,n])=>{const e=z["wolno"+k];if(e?.on&&!num(e.dl))warns.push(`Element wolnostojący ${n}: wpisz, ile zadaszenie wystaje poza budynek.`)});
   const w=$("#cWarn"); w.hidden=!warns.length; w.innerHTML=warns.map(t=>`<div class="warn">${esc(t)}</div>`).join("");
 }
 function calcPerg(){
@@ -826,11 +888,14 @@ function sideText(w,s){
   if(num(wys))t+=`, wys. ${mmTxt(wys)}`;
   const ty=w.typ||"";
   if(num(w.skrzydla)&&/przesuwne/.test(ty))t+=`, ilość skrzydeł: ${szt(w.skrzydla)}`;
-  if(w.parkowanie&&/przesuwne/.test(ty))t+=`, parkowanie: ${w.parkowanie.toLowerCase()}`;
+  if(w.parkowanie&&/przesuwne/.test(ty))t+=`, parkowanie: ${w.parkowanie.toLowerCase()} (od środka)`;
   if(w.maskownica&&/przesuwne/.test(ty))t+=`, z maskownicą`;
   if(w.material&&/^Ściana stała$/.test(ty))t+=` (${w.material})`;
   if(/Panel/.test(ty)&&w.kolorPanelu)t+=`, kolor: ${/Inny/.test(w.kolorPanelu)?(w.kolorPaneluInny||w.kolorPanelu):w.kolorPanelu}`;
-  if(/ZIP/.test(ty)&&w.strona)t+=`, silnik z ${w.strona==="Lewa"?"lewej":"prawej"} strony`;
+  if(/ZIP/.test(ty)&&w.strona)t+=`, silnik z ${w.strona==="Lewa"?"lewej":"prawej"} strony (od środka)`;
+  if(/Drzwi/.test(ty)){if(w.zawiasy)t+=`, zawiasy ${w.zawiasy.toLowerCase()} (od środka)`;if(w.otwieranie)t+=`, otwierane ${w.otwieranie.toLowerCase()}`;if(w.kolorDrzwi)t+=`, kolor: ${w.kolorDrzwi}`}
+  if(w.podzial&&Array.isArray(w.czesci)&&w.czesci.some(c=>c&&(c.typ||c.szer))){
+    t=`szer. całkowita ${mmTxt(szer)}`+(num(wys)?`, wys. ${mmTxt(wys)}`:"")+`, podział (patrząc od środka, od lewej): `+w.czesci.filter(c=>c&&(c.typ||c.szer)).map((c,i)=>`${i+1}) `+sideText(Object.assign({},c,{wys:c.wys||wys}))).join("; ");}
   if(w.klin)t+=`, trójkąt: ${w.klinTyp||"do ustalenia"}`;
   return t;
 }
@@ -878,16 +943,17 @@ function clientRows(r){
     add("Wysokości",(num(z.h1)||num(z.h2))?`przy ścianie ${mmTxt(z.h1)}, przy froncie ${mmTxt(z.h2)}`:"");
     add("Pokrycie dachu",z.pokrycie);
     add("Kolor konstrukcji",/Inny/.test(z.kolor||"")?(z.kolorInny||z.kolor):z.kolor);
-    add("Ilość słupów przód",z.belka?`${szt(belkaSlupy(z.szer))} (belka wzmacniająca)`:(num(z.slupy)?szt(z.slupy):""));
+    add("Ilość słupów przód",z.belka?`${szt(zadSlupy(z))} (belka wzmacniająca)`:(num(z.slupy)?szt(z.slupy):""));
     add("Ilość słupów tył",num(z.slupyTyl)?szt(z.slupyTyl):"");
     add("Słupy",[(z.belka||num(z.slupy)||num(z.slupyTyl))?"11 × 11 cm":"",num(z.dlugoscSlupa)?`długość ${fmt(num(z.dlugoscSlupa))} mm`:""].filter(Boolean).join(", "));
     const tr=[["lewy",z.trojkatL],["prawy",z.trojkatP]].filter(x=>x[1]&&x[1].on).map(x=>`${x[0]}${x[1].mat?" – "+x[1].mat:""}`);
     add("Trójkąty pod dachem",tr.join(", "));
     add("Wypust",z.wypust?`${num(z.wypustMm)?fmt(num(z.wypustMm))+" mm":"tak"} (dach wysunięty przed słupy)`+(num(z.h3)?`, wys. pod belką ${fmt(num(z.h3))} mm`:""):"");
+    [["L","lewy"],["P","prawy"]].forEach(([k,n])=>{const e=z["wolno"+k];if(e?.on)add(`Element wolnostojący ${n}`,`wystaje ${mmTxt(e.dl)} poza budynek`+(e.slupy?`, ${e.slupy}`:""))});
     add("Montaż słupów",z.montazSlupow?(z.montazSlupow==="Profil U"?"w profil U":"na beton"):"");
     add("Odprowadzenie wody",[z.odplyw?`odpływ: ${z.odplyw.toLowerCase()}`:"",num(z.odplywyIlosc)?`ilość odpływów: ${szt(z.odplywyIlosc)}`:"",z.obrobkaRury&&"obróbka rury spustowej",z.wodaZDomu&&"spuszczenie wody z dachu domu na zadaszenie"].filter(Boolean).join(", "));
     add("Oświetlenie i elektryka",[z.led&&("oświetlenie LED"+(num(z.ledIlosc)?` – ${szt(z.ledIlosc)}`:"")),z.lampki&&("przygotowanie instalacji pod lampki"+(num(z.lampkiIlosc)?` – ${szt(z.lampkiIlosc)}`:"")),z.gniazdka&&("gniazdka w słupie"+(num(z.gniazdkaIlosc)?` – ${szt(z.gniazdkaIlosc)}`:""))].filter(Boolean).join(", "));
-    const zr=r.zab?.rodzaj; if(zr&&zr!=="Bez zabudowy"){add("Zabudowa",zr);frRows(add,r.zab?.fr,z.belka?belkaSlupy(z.szer):Math.max(2,num(z.slupy)||2),"Przód",false);STRONY_ZAD.filter(s=>s.k!=="front").forEach(s=>{const w=r.zab?.[s.k];if(w?.on)add(s.n,sideText(w,s))})}
+    const zr=r.zab?.rodzaj; if(zr&&zr!=="Bez zabudowy"){add("Zabudowa",zr);frRows(add,r.zab?.fr,zadSlupy(z),"Przód",false);STRONY_ZAD.filter(s=>s.k!=="front").forEach(s=>{const w=r.zab?.[s.k];if(w?.on)add(s.n,sideText(w,s))})}
   }
   rows.__tail();
   return rows;
@@ -1034,13 +1100,15 @@ function onField(e){
   const el=e.target; if(!el.dataset||!el.dataset.k)return;
   let v; if(el.type==="checkbox")v=el.checked; else if(el.type==="radio"){if(!el.checked)return;v=el.value} else v=el.value;
   setP(cur,el.dataset.k,v);
-
+  if(el.dataset.k==="zad.slupy")cur.zad.slupyRecznie=!!String(v).trim();
+  if(el.dataset.k==="zad.belka"&&!v)cur.zad.slupyRecznie=true;
   dirty=true; saveDraft(); refresh();
 }
 
 /* ===== Wizualizacja ===== */
 function colHex(k){const m=String(k||"").match(/(7016|9006|9010|8014)/);return m?RAL_HEX[m[1]]:"#383E42"}
 function fillFor(t){t=t||"";
+  if(/Drzwi/.test(t))return {f:"rgba(96,104,110,.82)",lines:""};
   if(/Panel/.test(t))return {f:"rgba(120,128,134,.9)",lines:"h"};
   if(/ZIP/.test(t))return {f:"rgba(55,60,64,.62)",lines:"h"};
   if(/poliw/i.test(t))return {f:"rgba(236,238,240,.78)",lines:""};
@@ -1072,21 +1140,31 @@ function vizSVG(r){
   // ground
   poly([[-400,-200,0],[A+400,-200,0],[A+400,B+500,0],[-400,B+500,0]],"#E9ECEF","none");
   // house wall
-  if(wall)poly([[-500,0,0],[A+500,0,0],[A+500,0,Math.max(H1,H2)+(isP?beamH:roofT)+700],[-500,0,Math.max(H1,H2)+(isP?beamH:roofT)+700]],"#D5D9DD","#B9BFC5");
+  const wL=!isP&&r.zad?.wolnoL?.on?Math.min(num(r.zad.wolnoL.dl)||0,A*0.8):0, wP=!isP&&r.zad?.wolnoP?.on?Math.min(num(r.zad.wolnoP.dl)||0,A*0.8):0;
+  const wx0=wL?wL:-500, wx1=wP?A-wP:A+500, wTop=Math.max(H1,H2)+(isP?beamH:roofT)+700;
+  if(wall)poly([[wx0,0,0],[wx1,0,0],[wx1,0,wTop],[wx0,0,wTop]],"#D5D9DD","#B9BFC5");
   const triL=!isP&&r.zad?.trojkatL?.on, triP=!isP&&r.zad?.trojkatP?.on;
   const sideH=(x)=>isP?[[x,0,0],[x,B,0],[x,B,H1],[x,0,H1]]:((x===0?triL:triP)?[[x,0,0],[x,postY,0],[x,postY,fTop],[x,0,fTop]]:[[x,0,0],[x,postY,0],[x,postY,fTop],[x,0,H1-60]]);
   const tri=(x,mat)=>{const f=fillFor(mat||"Szkło");poly([[x,0,fTop],[x,postY,fTop],[x,postY,Math.max(fTop,roofAt(postY)-60)],[x,0,H1-60]],f?f.f:"rgba(165,200,226,.42)",col,1.2)};
   const sides=isP?r.pb||{}:r.zab||{}, zabOn=isP||(r.zab?.rodzaj&&r.zab.rodzaj!=="Bez zabudowy");
+  const sidePanel=(corners,w,rev)=>{const L=w.podzial&&Array.isArray(w.czesci)?w.czesci.filter(c=>c&&c.typ):[];if(!L.length){panel(corners,w.typ,num(w.skrzydla));return}
+    const ws=L.map(c=>num(c.szer)||1), tot=ws.reduce((a,b)=>a+b,0); let acc=0; const [a,b,c,d]=corners, lp=(u,v,t)=>u.map((q,j)=>q+(v[j]-q)*t);
+    const order=rev?L.map((_,i)=>L.length-1-i):L.map((_,i)=>i);
+    order.forEach(i=>{const t0=acc/tot,t1=(acc+ws[i])/tot;acc+=ws[i];panel([lp(a,b,t0),lp(a,b,t1),lp(d,c,t1),lp(d,c,t0)],L[i].typ,num(L[i].skrzydla))})};
   // far side (right) + back for pergola
-  if(zabOn&&sides.prawa?.on)panel(sideH(A),sides.prawa.typ,num(sides.prawa.skrzydla));
+  if(zabOn&&sides.prawa?.on)sidePanel(sideH(A),sides.prawa,false);
   if(triP)tri(A,r.zad.trojkatP.mat);
   if(isP&&sides.tyl?.on&&!wall)panel([[0,0,0],[A,0,0],[A,0,H1],[0,0,H1]],sides.tyl.typ,num(sides.tyl.skrzydla));
   // posts
   const post=(x,y,h)=>{const s=SLUP_MM;poly([[x,y,0],[x+s,y,0],[x+s,y,h],[x,y,h]],col,"rgba(0,0,0,.35)",1);poly([[x,y-s,0],[x,y,0],[x,y,h],[x,y-s,h]],col,"rgba(0,0,0,.35)",1,'opacity=".85"')};
   if(isP&&!wall){post(0,SLUP_MM,H1);post(A-SLUP_MM,SLUP_MM,H1)}
+  if(!isP){const bh=H1-60;
+    if(wL){post(0,SLUP_MM,bh);if(/2/.test(r.zad.wolnoL.slupy||""))post(Math.max(SLUP_MM*2,wL-SLUP_MM),SLUP_MM,bh);poly([[0,SLUP_MM,bh-160],[wL,SLUP_MM,bh-160],[wL,SLUP_MM,bh],[0,SLUP_MM,bh]],col,"rgba(0,0,0,.35)",1)}
+    if(wP){post(A-SLUP_MM,SLUP_MM,bh);if(/2/.test(r.zad.wolnoP.slupy||""))post(Math.min(A-SLUP_MM*3,A-wP),SLUP_MM,bh);poly([[A-wP,SLUP_MM,bh-160],[A,SLUP_MM,bh-160],[A,SLUP_MM,bh],[A-wP,SLUP_MM,bh]],col,"rgba(0,0,0,.35)",1)}
+    if(wL)ex.push(`element wolnostojący lewy ${fmt(wL)} mm`); if(wP)ex.push(`element wolnostojący prawy ${fmt(wP)} mm`);}
   // front posts & fields
   let xsPost=[0,A-SLUP_MM], fields=[];
-  if(!isP){const fr=r.zab?.fr, n=r.zad?.belka?belkaSlupy(r.zad?.szer)-1:Math.max(1,(num(r.zad?.slupy)||2)-1), pola=(fr&&Array.isArray(fr.pola)?fr.pola:[]).slice(0,n);
+  if(!isP){const fr=r.zab?.fr, n=Math.max(1,zadSlupy(r.zad)-1), pola=(fr&&Array.isArray(fr.pola)?fr.pola:[]).slice(0,n);
     const ws=pola.map(p=>num(p.szer)), known=ws.length===n&&ws.every(Boolean), inner=A-SLUP_MM*(n+1);
     xsPost=[0];let x=SLUP_MM;for(let i=0;i<n;i++){const w=known?ws[i]*(inner/ws.reduce((a,b)=>a+b,0)):inner/n;fields.push({x0:x,x1:x+w,p:pola[i]||{}});x+=w;xsPost.push(x);x+=SLUP_MM}}
   else{const pfr=r.pb?.fr, pp=(pfr&&Array.isArray(pfr.pola)?pfr.pola:[]);
@@ -1098,7 +1176,7 @@ function vizSVG(r){
   xsPost.forEach(x=>post(x,fy,fz));
   if(!isP&&wyp)poly([[0,postY,fz],[A,postY,fz],[A,postY,roofAt(postY)],[0,postY,roofAt(postY)]],col,"rgba(0,0,0,.35)",1);
   // near side (left)
-  if(zabOn&&sides.lewa?.on)panel(sideH(0),sides.lewa.typ,num(sides.lewa.skrzydla));
+  if(zabOn&&sides.lewa?.on)sidePanel(sideH(0),sides.lewa,true);
   if(triL)tri(0,r.zad.trojkatL.mat);
   // roller blinds on planes
   const rolGdzie=m=>{m=String(m||"").toLowerCase();if(/dach/.test(m))return "dach";if(/bok/.test(m)&&/lew/.test(m))return "lewa";if(/bok/.test(m)&&/praw/.test(m))return "prawa";return m?"front":""};
@@ -1245,6 +1323,8 @@ form.addEventListener("click",e=>{
   const sp=e.target.closest("[data-split]");if(sp){frSplit(sp.dataset.split);return}
   if(e.target.id==="btnAddRol"){(cur.rol=cur.rol||[]).push({});dirty=true;saveDraft();renderRol();refresh();return}
   const dr=e.target.closest("[data-del-rol]");if(dr){cur.rol.splice(+dr.dataset.delRol,1);dirty=true;saveDraft();renderRol();refresh();return}
+  const ac=e.target.closest("[data-add-cz]");if(ac){const w=getP(cur,ac.dataset.addCz)||{};if(!Array.isArray(w.czesci))w.czesci=[];w.czesci.push({});setP(cur,ac.dataset.addCz,w);dirty=true;saveDraft();refresh();return}
+  const dc=e.target.closest("[data-del-cz]");if(dc){const [p,i]=dc.dataset.delCz.split("|");const w=getP(cur,p);if(w&&Array.isArray(w.czesci)){w.czesci.splice(+i,1);const box=document.querySelector(`[data-czesci="${p}"]`);if(box)box.innerHTML="";dirty=true;saveDraft();refresh()}return}
   if(e.target.id==="btnVizSave"){vizSave();return}
   if(e.target.id==="btnAddPoz"){(cur.poz=cur.poz||[]).push({});dirty=true;saveDraft();renderPoz();fillForm();return}
   const dp=e.target.closest("[data-del-poz]");if(dp){cur.poz.splice(+dp.dataset.delPoz,1);dirty=true;saveDraft();renderPoz();fillForm();return}
