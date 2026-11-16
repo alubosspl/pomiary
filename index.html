@@ -308,8 +308,8 @@ const OPIEKUNOWIE=["Marlena","Wiktoria","Madzia","Karolina"];
 const STATUSY=["Zaplanowany","Pomiar wykonany","Mail wysłany"];
 const KOLORY=["Antracyt struktura RAL 7016ST","Srebrno-szary struktura RAL 9006ST","Biały gładki RAL 9010","Sepia-brąz struktura RAL 8014ST","Inny kolor RAL (za dopłatą)"];
 const POKRYCIA=["Poliwęglan 16 mm mleczny","Poliwęglan 16 mm przeźroczysty","Poliwęglan 16 mm grafit","Szkło VSG 44.2 przeźroczyste","Szkło VSG 44.2 mleczne","Szkło VSG 44.2 grafit"];
-const ZAB_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP"];
-const PERG_BOKI=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP"];
+const ZAB_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP"];
+const PERG_BOKI=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP"];
 const BIURO={tel:"78 472 88 66",mail:"dzialhandlowy@aluboss.pl",www:"aluboss.pl"};
 const STRONY_ZAD=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa",klin:false},{k:"lewa",n:"Bok lewy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true},{k:"prawa",n:"Bok prawy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true}];
 const STRONY_PERG=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa"},{k:"lewa",n:"Bok lewy",a:"Wys. lewa",b:"Wys. prawa"},{k:"prawa",n:"Bok prawy",a:"Wys. lewa",b:"Wys. prawa"},{k:"tyl",n:"Tył",a:"Wys. lewa",b:"Wys. prawa"}];
@@ -321,9 +321,9 @@ const belkaSlupy=A=>Math.max(2,Math.ceil((num(A)||0)/7000)+1); // belka: do 7 m 
 const MONTAZ=["Na beton","Profil U"];
 const zadSlupy=z=>{z=z||{};return z.belka?(num(z.slupy)||belkaSlupy(z.szer)):Math.max(2,num(z.slupy)||2)};
 const slupTxt=n=>n==1?"1 słup":`${n} słupy`;
-const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP","Bez zabudowy (wejście)"];
-const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Drzwi aluminiowe","Screen ZIP"];
-const CZ_TYPY=["Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Drzwi aluminiowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Screen ZIP"];
+const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP","Bez zabudowy (wejście)"];
+const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP"];
+const CZ_TYPY=["Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Drzwi aluminiowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Shuttersy aluminiowe","Screen ZIP"];
 const KLIN_MAT=["Szkło VSG 8,76 mm","Poliwęglan 16 mm","Panel aluminiowy"];
 const PILOT=["1-kanałowy","5-kanałowy","15-kanałowy","Inny"];
 const szt=n=>`${fmt(num(n))} szt.`;
@@ -359,6 +359,11 @@ function extraFields(p){return `
    <div class="grid" data-show-has="${p}.typ~Drzwi">${seg(p+".zawiasy","Zawiasy (patrząc od środka)",["Lewe","Prawe"])}${seg(p+".otwieranie","Otwierane",["Na zewnątrz","Do środka"])}</div>
    <div class="grid g3" data-show-has="${p}.typ~Drzwi">${sel(p+".kolorDrzwi","Kolor drzwi",KOLORY)}</div>
    <div class="grid g3" data-show-has="${p}.typ~Panel">${sel(p+".kolorPanelu","Kolor paneli aluminiowych",KOLORY)}<div data-show-has="${p}.kolorPanelu~Inny">${txt(p+".kolorPaneluInny","Numer RAL paneli","text","np. RAL 7022")}</div></div>
+   <div data-show-has="${p}.typ~Shutters" style="display:flex;flex-direction:column;gap:10px">
+    <div class="grid g3">${seg(p+".shRodzaj","Rodzaj shuttersów",["Przesuwne","Składane","Stałe"])}${cnt(p+".shSkrzydla","Liczba skrzydeł")}${seg(p+".shLamele","Lamele",["Ruchome","Stałe"])}</div>
+    <div data-show-has="${p}.shRodzaj~Przesuwne|Składane">${seg(p+".shParkowanie","Strona parkowania / składania (patrząc od środka)",["Lewa","Prawa","Obie strony"])}</div>
+    <div class="grid g3">${sel(p+".kolorSh","Kolor shuttersów",KOLORY)}<div data-show-has="${p}.kolorSh~Inny">${txt(p+".kolorShInny","Numer RAL shuttersów","text","np. RAL 7022")}</div></div>
+   </div>
    <div data-show-has="${p}.typ~^Ściana stała$">${seg(p+".material","Wypełnienie ściany stałej",["Szkło VSG 8,76 mm","Poliwęglan 16 mm"])}</div>`}
 function sideCard(pre,s,types,withKlin){const p=pre+"."+s.k;return `<div class="card">
   <div class="card-head"><h3>${s.n}</h3>${chk(p+".on","Zabudowa tej strony")}</div>
@@ -472,6 +477,8 @@ function tailSection(){return `
 function zadBody(){return headSection()+`
 <section class="blk">
   <div class="sec-head"><h2>Zadaszenie tarasu</h2><span class="muted">Wszystkie wymiary w mm</span></div>
+  <div id="roofBar" style="display:flex;flex-direction:column;gap:8px"></div>
+  <div class="grid">${txt("zad.nazwa","Nazwa / miejsce zadaszenia","text","np. taras od ogrodu, carport, wejście")}</div>
   <div class="scheme">
     <svg viewBox="0 0 340 210" role="img" aria-label="Schemat boczny zadaszenia: wysięg B, wysokości H1 i H2">
       <rect class="sv-wall" x="18" y="14" width="22" height="170"/>
@@ -600,6 +607,7 @@ function frSVG(path,c){
       const pk=p.parkowanie||"",ay=top+h*0.35,ar=(a,b)=>{g+=`<line x1="${a}" y1="${ay}" x2="${b}" y2="${ay}" stroke="#356DA1" stroke-width="3" marker-end="url(#arrF)"/>`};
       if(/Lewa|Obie/.test(pk))ar(x+w*0.5,x+10); if(/Prawa|Obie/.test(pk))ar(x+w*0.5,x+w-10);}
     else if(/Drzwi/.test(t)){g+=`<rect class="fr-fix" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="fill:rgba(120,128,134,.35)"/><rect x="${x+w*0.18}" y="${top+8}" width="${w*0.64}" height="${h-10}" fill="none" style="stroke:var(--ink)" stroke-width="1.5"/>`;}
+    else if(/Shutters/.test(t)){const k=Math.max(1,Math.min(10,num(p.shSkrzydla)||2)),sw=(w-4)/k;g+=`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:.55"/>`;for(let j=1;j<k;j++)g+=`<line x1="${x+2+sw*j}" y1="${top+2}" x2="${x+2+sw*j}" y2="${bot-2}" style="stroke:var(--ink)" stroke-width="1.5"/>`;for(let y=top+8;y<bot-4;y+=6)g+=`<line class="fr-zl" x1="${x+4}" y1="${y}" x2="${x+w-4}" y2="${y+2}"/>`}
     else if(/ZIP/.test(t)){g+=`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;for(let y=top+10;y<bot;y+=8)g+=`<line class="fr-zl" x1="${x+2}" y1="${y}" x2="${x+w-2}" y2="${y}"/>`}
     else g+=`<rect class="fr-open" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;
     g+=`<text class="fr-n" x="${x+w/2}" y="${top+(bot-top)/2+4}" text-anchor="middle">${i+1}</text>`;
@@ -642,6 +650,7 @@ function segSVG(g,t,x,w,top,bot,w0){const h=bot-top;
     if(/Lewa|Obie/.test(pk))ar(x+w*0.5,x+12); if(/Prawa|Obie/.test(pk))ar(x+w*0.5,x+w-12);}
   else if(/Drzwi/.test(t)){g.push(`<rect class="fr-fix" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="fill:rgba(120,128,134,.35)"/><rect x="${x+w*0.18}" y="${top+8}" width="${w*0.64}" height="${h-10}" fill="none" stroke="currentColor" style="stroke:var(--ink)" stroke-width="1.5"/>`);
     const hx=w0.zawiasy==="Lewe"?x+w*0.78:x+w*0.24; g.push(`<circle cx="${hx}" cy="${top+h*0.55}" r="3" style="fill:var(--ink)"/>`);}
+  else if(/Shutters/.test(t)){const k=Math.max(1,Math.min(10,num(w0.shSkrzydla)||2)),sw=(w-4)/k;g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:.55"/>`);for(let j=1;j<k;j++)g.push(`<line x1="${x+2+sw*j}" y1="${top+2}" x2="${x+2+sw*j}" y2="${bot-2}" style="stroke:var(--ink)" stroke-width="1.5"/>`);for(let y=top+8;y<bot-4;y+=6)g.push(`<line class="fr-zl" x1="${x+4}" y1="${y}" x2="${x+w-4}" y2="${y+2}"/>`)}
   else if(/ZIP/.test(t)){g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`);for(let y=top+10;y<bot;y+=8)g.push(`<line class="fr-zl" x1="${x+2}" y1="${y}" x2="${x+w-2}" y2="${y}"/>`)}
   else if(/Panel/.test(t)){g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:.7"/>`)}
   else g.push(`<rect class="fr-open" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`);
@@ -763,6 +772,10 @@ function pergBody(){return headSection()+`
   </div>
   <div class="checks">${chk("perg.led","Oświetlenie LED")}${chk("perg.czujnik","Czujnik deszczu / wiatru")}${chk("perg.grzalka","Promiennik ciepła")}</div>
   <div class="grid g3" data-show="perg.led">${cnt("perg.ledIlosc","Ilość LED (szt.)")}</div>
+  <div class="sec-head"><h3>Słupy dodatkowe i uwagi do pergoli</h3></div>
+  <div class="checks">${chk("perg.slupDod","Słup dodatkowy")}</div>
+  <div class="grid" data-show="perg.slupDod">${cnt("perg.slupDodIlosc","Ilość słupów dodatkowych (szt.)")}${txt("perg.slupDodGdzie","Gdzie","text","np. środek frontu, przy ścianie domu")}</div>
+  <label class="fld" for="${fid("perg.uwagi")}"><span class="lbl">Uwagi do pergoli (trafiają do maila)</span><textarea id="${fid("perg.uwagi")}" data-k="perg.uwagi" placeholder="Np. słup dodatkowy na środku frontu, obniżenie przy oknie, lamele otwierane w stronę domu"></textarea></label>
 </section>
 <section class="blk">
   <div class="sec-head"><h2>Boki pergoli</h2><span class="muted">Zaznacz strony do zabudowy</span></div>
@@ -847,7 +860,7 @@ function showRules(root){
 }
 function refresh(){
   if(cur.typ==="zadaszenie"&&cur.zad?.belka&&!cur.zad.slupyRecznie){const n=String(belkaSlupy(cur.zad.szer));if(cur.zad.slupy!==n){cur.zad.slupy=n;const sl=$("#"+fid("zad.slupy"));if(sl&&document.activeElement!==sl)sl.value=n}}
-  frRender(); czRender(); showRules($("#viewForm")); sideRender();
+  frRender(); czRender(); showRules($("#viewForm")); sideRender(); if(cur.typ==="zadaszenie")renderRoofBar();
   if(cur.typ==="pergola")calcPerg(); else if(cur.typ==="zadaszenie")calcZad();
   $("#formTitle").textContent=cur.klient?.imie||({pergola:"Nowa pergola lamelowa",zabudowa:"Nowa zabudowa"}[cur.typ]||"Nowe zadaszenie");
   $("#dirty").hidden=!dirty;
@@ -881,6 +894,18 @@ function calcPerg(){
   const w=$("#cPWarn"); w.hidden=!warns.length; w.innerHTML=warns.map(t=>`<div class="warn">${esc(t)}</div>`).join("");
 }
 
+/* ===== Kilka zadaszeń w jednym pomiarze ===== */
+function roofs(r){const L=Array.isArray(r.zadaszenia)&&r.zadaszenia.length?r.zadaszenia.slice():[{}];const a=Math.min(Math.max(0,r.akt||0),L.length-1);L[a]={zad:r.zad||{},zab:r.zab||{}};return L}
+function roofSync(){if(!cur||cur.typ!=="zadaszenie")return;cur.akt=Math.min(Math.max(0,cur.akt||0),roofs(cur).length-1);cur.zadaszenia=roofs(cur)}
+const roofName=(x,i)=>`Zadaszenie ${i+1}`+(x&&x.zad&&x.zad.nazwa?` – ${x.zad.nazwa}`:"");
+function roofSwitch(i){roofSync();if(i<0||i>=cur.zadaszenia.length)return;cur.akt=i;const x=cur.zadaszenia[i]||{};cur.zad=clone(x.zad||{});cur.zab=clone(x.zab||{});cur.zadaszenia[i]={zad:cur.zad,zab:cur.zab};buildForm();fillForm();const s=$("#roofBar");if(s)scrollTo(0,s.getBoundingClientRect().top+scrollY-180)}
+function roofAdd(){roofSync();const z=cur.zad||{};cur.zadaszenia.push({zad:{kolor:z.kolor,kolorInny:z.kolorInny,pokrycie:z.pokrycie,montazSlupow:z.montazSlupow},zab:{}});dirty=true;roofSwitch(cur.zadaszenia.length-1);saveDraft();toast("Dodano kolejne zadaszenie. Kolor i pokrycie skopiowane z poprzedniego.")}
+let roofDelArmed=0;
+function roofDel(b){if(!roofDelArmed){roofDelArmed=setTimeout(()=>{roofDelArmed=0;b.textContent="Usuń to zadaszenie"},4000);b.textContent="Kliknij ponownie, aby usunąć";return}
+  clearTimeout(roofDelArmed);roofDelArmed=0;roofSync();if(cur.zadaszenia.length<2)return;cur.zadaszenia.splice(cur.akt,1);const n=Math.max(0,cur.akt-1);const x=cur.zadaszenia[n];cur.akt=n;cur.zad=x.zad||{};cur.zab=x.zab||{};dirty=true;roofSwitch(n);saveDraft();toast("Usunięto zadaszenie")}
+function renderRoofBar(){const b=$("#roofBar");if(!b)return;const L=roofs(cur),a=Math.min(cur.akt||0,L.length-1);
+  b.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:8px">${L.map((x,i)=>`<button type="button" class="btn sm${i===a?" pri":""}" data-roof="${i}" aria-pressed="${i===a}">${esc(roofName(x,i))}</button>`).join("")}<button type="button" class="btn sm" data-roof-add>+ Dodaj kolejne zadaszenie</button>${L.length>1?`<button type="button" class="btn sm danger" data-roof-del>Usuń to zadaszenie</button>`:""}</div>`+(L.length>1?`<span class="hint">Zadaszeń w tym pomiarze: ${L.length}. Teraz edytujesz: <b>${esc(roofName(L[a],a))}</b>. Wszystkie trafią do maila.</span>`:`<span class="hint">Kilka zadaszeń u jednego klienta? Dodaj kolejne, wszystkie będą w jednym pomiarze i jednym mailu.</span>`)}
+
 /* ===== Opisy dla klienta ===== */
 const mmTxt=v=>num(v)?fmt(num(v))+" mm":"—";
 function sideText(w,s){
@@ -893,6 +918,7 @@ function sideText(w,s){
   if(w.maskownica&&/przesuwne/.test(ty))t+=`, z maskownicą`;
   if(w.material&&/^Ściana stała$/.test(ty))t+=` (${w.material})`;
   if(/Panel/.test(ty)&&w.kolorPanelu)t+=`, kolor: ${/Inny/.test(w.kolorPanelu)?(w.kolorPaneluInny||w.kolorPanelu):w.kolorPanelu}`;
+  if(/Shutters/.test(ty)){if(w.shRodzaj)t+=`, ${w.shRodzaj.toLowerCase()}`;if(num(w.shSkrzydla))t+=`, ilość skrzydeł: ${szt(w.shSkrzydla)}`;if(w.shLamele)t+=`, lamele ${w.shLamele.toLowerCase()}`;if(w.shParkowanie&&/Przesuwne|Składane/.test(w.shRodzaj||""))t+=`, parkowanie: ${w.shParkowanie.toLowerCase()} (od środka)`;if(w.kolorSh)t+=`, kolor: ${/Inny/.test(w.kolorSh)?(w.kolorShInny||w.kolorSh):w.kolorSh}`}
   if(/ZIP/.test(ty)&&w.strona)t+=`, silnik z ${w.strona==="Lewa"?"lewej":"prawej"} strony (od środka)`;
   if(/Drzwi/.test(ty)){if(w.zawiasy)t+=`, zawiasy ${w.zawiasy.toLowerCase()} (od środka)`;if(w.otwieranie)t+=`, otwierane ${w.otwieranie.toLowerCase()}`;if(w.kolorDrzwi)t+=`, kolor: ${w.kolorDrzwi}`}
   if(w.podzial&&Array.isArray(w.czesci)&&w.czesci.some(c=>c&&(c.typ||c.szer))){
@@ -929,6 +955,8 @@ function clientRows(r){
     add("Sterowanie",p.sterowanie);
     add("Pilot",p.pilot);
     add("Silnik – strona",p.silnik==="Wpisz ręcznie"?p.silnikGdzie:p.silnik);
+    add("Słup dodatkowy",p.slupDod?((num(p.slupDodIlosc)?szt(p.slupDodIlosc):"tak")+(p.slupDodGdzie?` – ${p.slupDodGdzie}`:"")):"");
+    add("Uwagi do pergoli",(p.uwagi||"").trim());
     add("Dodatki",[p.led&&("oświetlenie LED"+(num(p.ledIlosc)?` – ${szt(p.ledIlosc)}`:"")),p.czujnik&&"czujnik deszczu i wiatru",p.grzalka&&"promiennik ciepła"].filter(Boolean).join(", "));
     if(r.pb?.fr&&(r.pb.fr.pola||[]).some(p=>p&&(p.typ||p.szer)))frRows(add,Object.assign({},r.pb.fr,{wys:r.pb.fr.wys||r.perg?.wys}),Math.max(2,num(r.pb.fr.slupy)||2),"Przód");
     STRONY_PERG.forEach(s=>{const w=r.pb?.[s.k];if(w?.on)add(s.n,sideText(w,s))});
@@ -938,8 +966,9 @@ function clientRows(r){
     frRows(add,r.fr,Math.max(2,num(r.fr?.slupy)||2),"Przód");
     add("Montaż słupów",r.fr?.montazSlupow?(r.fr.montazSlupow==="Profil U"?"w profil U":"na beton"):"");
     (r.poz||[]).forEach((w,n)=>{if(w&&(w.typ||w.szer||w.szerGora||w.szerDol))add(`Pozycja ${n+1}${w.miejsce?" – "+w.miejsce:""}`,sideText(w))});
-  }else{const z=r.zad||{};
-    add("Produkt","Zadaszenie tarasu"+(z.mocowanie?` (${z.mocowanie.toLowerCase()})`:""));
+  }else{const RL=roofs(r);RL.forEach((x,ri)=>{const z=x.zad||{}, zb=x.zab||{};
+    if(RL.length>1)rows.push([roofName(x,ri).toUpperCase(),"","h"]);
+    add("Produkt","Zadaszenie tarasu"+(z.nazwa?` – ${z.nazwa}`:"")+(z.mocowanie?` (${z.mocowanie.toLowerCase()})`:""));
     add("Wymiary",[z.szer,z.wys].every(num)?`${fmt(num(z.szer))} × ${fmt(num(z.wys))} mm (szerokość × wysięg)`:"");
     add("Wysokości",(num(z.h1)||num(z.h2))?`przy ścianie ${mmTxt(z.h1)}, przy froncie ${mmTxt(z.h2)}`:"");
     add("Pokrycie dachu",z.pokrycie);
@@ -954,7 +983,8 @@ function clientRows(r){
     add("Montaż słupów",z.montazSlupow?(z.montazSlupow==="Profil U"?"w profil U":"na beton"):"");
     add("Odprowadzenie wody",[z.odplyw?`odpływ: ${z.odplyw.toLowerCase()}`:"",num(z.odplywyIlosc)?`ilość odpływów: ${szt(z.odplywyIlosc)}`:"",z.obrobkaRury&&"obróbka rury spustowej",z.wodaZDomu&&"spuszczenie wody z dachu domu na zadaszenie"].filter(Boolean).join(", "));
     add("Oświetlenie i elektryka",[z.led&&("oświetlenie LED"+(num(z.ledIlosc)?` – ${szt(z.ledIlosc)}`:"")),z.lampki&&("przygotowanie instalacji pod lampki"+(num(z.lampkiIlosc)?` – ${szt(z.lampkiIlosc)}`:"")),z.gniazdka&&("gniazdka w słupie"+(num(z.gniazdkaIlosc)?` – ${szt(z.gniazdkaIlosc)}`:""))].filter(Boolean).join(", "));
-    const zr=r.zab?.rodzaj; if(zr&&zr!=="Bez zabudowy"){add("Zabudowa",zr);frRows(add,r.zab?.fr,zadSlupy(z),"Przód",false);STRONY_ZAD.filter(s=>s.k!=="front").forEach(s=>{const w=r.zab?.[s.k];if(w?.on)add(s.n,sideText(w,s))})}
+    const zr=zb.rodzaj; if(zr&&zr!=="Bez zabudowy"){add("Zabudowa",zr);frRows(add,zb.fr,zadSlupy(z),"Przód",false);STRONY_ZAD.filter(s=>s.k!=="front").forEach(s=>{const w=zb[s.k];if(w?.on)add(s.n,sideText(w,s))})}
+    });
   }
   rows.__tail();
   return rows;
@@ -965,7 +995,7 @@ function subject(r){return `Podsumowanie pomiaru – ${({pergola:"pergola lamelo
 function mailHTML(r){
   const F="font-family:Roboto,Arial,Helvetica,sans-serif;", INK="#22292A", GR="#5D6668", AN="#353B3B", BLUE="#356DA1", LINE="#E2E7EC";
   const first=(r.klient?.imie||"").trim().split(/\s+/)[0];
-  const rows=clientRows(r).map(([l,v],i)=>`<tr><td style="${F}font-size:13px;color:${GR};padding:9px 12px;border-top:1px solid ${LINE};width:38%;vertical-align:top">${esc(l)}</td><td style="${F}font-size:14px;color:${INK};padding:9px 12px;border-top:1px solid ${LINE};vertical-align:top">${esc(v)}</td></tr>`).join("");
+  const rows=clientRows(r).map(([l,v,h],i)=>h?`<tr><td colspan="2" style="${F}font-size:13px;font-weight:bold;letter-spacing:1px;color:#FFFFFF;background:${BLUE};padding:8px 12px">${esc(l)}</td></tr>`:`<tr><td style="${F}font-size:13px;color:${GR};padding:9px 12px;border-top:1px solid ${LINE};width:38%;vertical-align:top">${esc(l)}</td><td style="${F}font-size:14px;color:${INK};padding:9px 12px;border-top:1px solid ${LINE};vertical-align:top">${esc(v)}</td></tr>`).join("");
   const info=clientInfo(r);
   const opiekun=r.opiekun||"Dział handlowy";
   return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#EEF0F2"><tr><td align="center" style="padding:16px 8px">
@@ -1009,7 +1039,7 @@ function mailText(r){
   const first=(r.klient?.imie||"").trim().split(/\s+/)[0], L=[];
   L.push(`Dzień dobry${first?" "+first:""},`,"","dziękujemy za spotkanie i możliwość wykonania pomiaru. Poniżej przesyłamy podsumowanie ustaleń. Prosimy o sprawdzenie danych. Jeśli coś wymaga poprawy, wystarczy odpowiedzieć na tę wiadomość.","");
   L.push("DANE KLIENTA"); clientInfo(r).forEach(([l,v])=>L.push(`${l}: ${v}`));
-  L.push("","ZAKRES I WYMIARY"); clientRows(r).forEach(([l,v])=>L.push(`${l}: ${v}`));
+  L.push("","ZAKRES I WYMIARY"); clientRows(r).forEach(([l,v,h])=>L.push(h?`\n--- ${l} ---`:`${l}: ${v}`));
   if(r.uwagiKlient)L.push("",r.uwagiKlient);
   L.push("","Na podstawie pomiaru przygotujemy dla Państwa ofertę. W razie pytań jestem do dyspozycji.","","Pozdrawiam serdecznie,",r.opiekun||"Dział handlowy","ALUBOSS · dział handlowy",`tel. ${BIURO.tel} · ${BIURO.mail} · ${BIURO.www}`);
   return L.join("\n");
@@ -1074,11 +1104,12 @@ function startNew(typ){
   if(cur&&dirty&&cur.typ===typ){show("form");return}
   openRecord(null,typ);
 }
-function saveDraft(){try{localStorage.setItem(DRAFT,JSON.stringify(cur))}catch(_){}}
+function saveDraft(){try{roofSync()}catch(_){}try{localStorage.setItem(DRAFT,JSON.stringify(cur))}catch(_){}}
 function clearDraft(){try{localStorage.removeItem(DRAFT)}catch(_){}}
 async function save(){
   if(!cur.klient?.imie){toast("Wpisz imię i nazwisko klienta");$("#"+fid("klient.imie")).focus();return}
   const b=$("#btnSave");b.disabled=true;b.textContent="Zapisywanie…";
+  roofSync();
   try{const r=await srv("saveRecord",clone(cur));cur.updatedAt=r.updatedAt;cur.eventId=r.eventId;cur.kalendarzBlad=r.kalendarzBlad;
     records=records.filter(x=>x.id!==r.id);records.unshift(r);setQueue(queue().filter(x=>x.id!==r.id));cacheRecords();dirty=false;clearDraft();refresh();renderList();
     toast(r.kalendarzBlad?"Zapisano pomiar. Kalendarz: "+r.kalendarzBlad:r.eventId?"Zapisano i dodano do kalendarza":"Zapisano pomiar")}
@@ -1110,6 +1141,7 @@ function onField(e){
 function colHex(k){const m=String(k||"").match(/(7016|9006|9010|8014)/);return m?RAL_HEX[m[1]]:"#383E42"}
 function fillFor(t){t=t||"";
   if(/Drzwi/.test(t))return {f:"rgba(96,104,110,.82)",lines:""};
+  if(/Shutters/.test(t))return {f:"rgba(104,112,118,.86)",lines:"h"};
   if(/Panel/.test(t))return {f:"rgba(120,128,134,.9)",lines:"h"};
   if(/ZIP/.test(t))return {f:"rgba(55,60,64,.62)",lines:"h"};
   if(/poliw/i.test(t))return {f:"rgba(236,238,240,.78)",lines:""};
@@ -1324,6 +1356,9 @@ form.addEventListener("click",e=>{
   const sp=e.target.closest("[data-split]");if(sp){frSplit(sp.dataset.split);return}
   if(e.target.id==="btnAddRol"){(cur.rol=cur.rol||[]).push({});dirty=true;saveDraft();renderRol();refresh();return}
   const dr=e.target.closest("[data-del-rol]");if(dr){cur.rol.splice(+dr.dataset.delRol,1);dirty=true;saveDraft();renderRol();refresh();return}
+  const rf=e.target.closest("[data-roof]");if(rf){roofSwitch(+rf.dataset.roof);return}
+  if(e.target.closest("[data-roof-add]")){roofAdd();return}
+  const rd=e.target.closest("[data-roof-del]");if(rd){roofDel(rd);return}
   const ac=e.target.closest("[data-add-cz]");if(ac){const w=getP(cur,ac.dataset.addCz)||{};if(!Array.isArray(w.czesci))w.czesci=[];w.czesci.push({});setP(cur,ac.dataset.addCz,w);dirty=true;saveDraft();refresh();return}
   const dc=e.target.closest("[data-del-cz]");if(dc){const [p,i]=dc.dataset.delCz.split("|");const w=getP(cur,p);if(w&&Array.isArray(w.czesci)){w.czesci.splice(+i,1);const box=document.querySelector(`[data-czesci="${p}"]`);if(box)box.innerHTML="";dirty=true;saveDraft();refresh()}return}
   if(e.target.id==="btnVizSave"){vizSave();return}
