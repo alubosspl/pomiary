@@ -308,8 +308,8 @@ const OPIEKUNOWIE=["Marlena","Wiktoria","Madzia","Karolina"];
 const STATUSY=["Zaplanowany","Pomiar wykonany","Mail wysłany"];
 const KOLORY=["Antracyt struktura RAL 7016ST","Srebrno-szary struktura RAL 9006ST","Biały gładki RAL 9010","Sepia-brąz struktura RAL 8014ST","Inny kolor RAL (za dopłatą)"];
 const POKRYCIA=["Poliwęglan 16 mm mleczny","Poliwęglan 16 mm przeźroczysty","Poliwęglan 16 mm grafit","Szkło VSG 44.2 przeźroczyste","Szkło VSG 44.2 mleczne","Szkło VSG 44.2 grafit"];
-const ZAB_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP"];
-const PERG_BOKI=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP"];
+const ZAB_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Shuttersy aluminiowe","Sunbreaker","Drzwi aluminiowe","Screen ZIP"];
+const PERG_BOKI=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała – szkło VSG 8,76 mm","Panel aluminiowy","Shuttersy aluminiowe","Sunbreaker","Drzwi aluminiowe","Screen ZIP"];
 const BIURO={tel:"78 472 88 66",mail:"dzialhandlowy@aluboss.pl",www:"aluboss.pl"};
 const STRONY_ZAD=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa",klin:false},{k:"lewa",n:"Bok lewy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true},{k:"prawa",n:"Bok prawy",a:"Wys. przy budynku",b:"Wys. przy słupie",klin:true}];
 const STRONY_PERG=[{k:"front",n:"Front",a:"Wys. lewa",b:"Wys. prawa"},{k:"lewa",n:"Bok lewy",a:"Wys. lewa",b:"Wys. prawa"},{k:"prawa",n:"Bok prawy",a:"Wys. lewa",b:"Wys. prawa"},{k:"tyl",n:"Tył",a:"Wys. lewa",b:"Wys. prawa"}];
@@ -321,9 +321,9 @@ const belkaSlupy=A=>Math.max(2,Math.ceil((num(A)||0)/7000)+1); // belka: do 7 m 
 const MONTAZ=["Na beton","Profil U"];
 const zadSlupy=z=>{z=z||{};return z.belka?(num(z.slupy)||belkaSlupy(z.szer)):Math.max(2,num(z.slupy)||2)};
 const slupTxt=n=>n==1?"1 słup":`${n} słupy`;
-const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP","Bez zabudowy (wejście)"];
-const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Shuttersy aluminiowe","Drzwi aluminiowe","Screen ZIP"];
-const CZ_TYPY=["Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Drzwi aluminiowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Shuttersy aluminiowe","Screen ZIP"];
+const POLE_TYPY=["Szyby przesuwne bezramowe","Szyby przesuwne ramowe","Ściana stała","Panel aluminiowy","Shuttersy aluminiowe","Sunbreaker","Drzwi aluminiowe","Screen ZIP","Bez zabudowy (wejście)"];
+const POZ_TYPY=["Ściana stała","Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Panel aluminiowy","Shuttersy aluminiowe","Sunbreaker","Drzwi aluminiowe","Screen ZIP"];
+const CZ_TYPY=["Szyby przesuwne ramowe","Szyby przesuwne bezramowe","Drzwi aluminiowe","Ściana stała – szkło VSG 8,76 mm","Ściana stała – poliwęglan 16 mm","Panel aluminiowy","Shuttersy aluminiowe","Sunbreaker","Screen ZIP"];
 const KLIN_MAT=["Szkło VSG 8,76 mm","Poliwęglan 16 mm","Panel aluminiowy"];
 const PILOT=["1-kanałowy","5-kanałowy","15-kanałowy","Inny"];
 const szt=n=>`${fmt(num(n))} szt.`;
@@ -358,7 +358,8 @@ function extraFields(p){return `
    <div data-show-has="${p}.typ~ZIP">${seg(p+".strona","Strona silnika ZIP (patrząc od środka)",["Lewa","Prawa"])}</div>
    <div class="grid" data-show-has="${p}.typ~Drzwi">${seg(p+".zawiasy","Zawiasy (patrząc od środka)",["Lewe","Prawe"])}${seg(p+".otwieranie","Otwierane",["Na zewnątrz","Do środka"])}</div>
    <div class="grid g3" data-show-has="${p}.typ~Drzwi">${sel(p+".kolorDrzwi","Kolor drzwi",KOLORY)}</div>
-   <div class="grid g3" data-show-has="${p}.typ~Panel">${sel(p+".kolorPanelu","Kolor paneli aluminiowych",KOLORY)}<div data-show-has="${p}.kolorPanelu~Inny">${txt(p+".kolorPaneluInny","Numer RAL paneli","text","np. RAL 7022")}</div></div>
+   <div data-show-has="${p}.typ~Panel|Sunbreaker">${seg(p+".uklad","Układ (paneli / lameli)",["Poziomo","Pionowo"])}</div>
+   <div class="grid g3" data-show-has="${p}.typ~Panel|Sunbreaker">${sel(p+".kolorPanelu","Kolor (panele / Sunbreaker)",KOLORY)}<div data-show-has="${p}.kolorPanelu~Inny">${txt(p+".kolorPaneluInny","Numer RAL paneli","text","np. RAL 7022")}</div></div>
    <div data-show-has="${p}.typ~Shutters" style="display:flex;flex-direction:column;gap:10px">
     <div class="grid g3">${seg(p+".shRodzaj","Rodzaj shuttersów",["Przesuwne","Składane","Stałe"])}${cnt(p+".shSkrzydla","Liczba skrzydeł")}${seg(p+".shLamele","Lamele",["Ruchome","Stałe"])}</div>
     <div data-show-has="${p}.shRodzaj~Przesuwne|Składane">${seg(p+".shParkowanie","Strona parkowania / składania (patrząc od środka)",["Lewa","Prawa","Obie strony"])}</div>
@@ -512,6 +513,12 @@ function zadBody(){return headSection()+`
   </div>
   ${chk("zad.belka","Belka wzmacniająca (korygująca): do 7 m – 2 słupy, do 14 m – 3 słupy, do 21 m – 4 słupy")}
   <span class="hint" data-show="zad.belka">Liczba słupów podpowiada się sama z szerokości. Możesz ją zmienić w polu „Ilość słupów przód”.</span>
+  ${chk("zad.podparcie","Podparcie na środku: belka wzmacniająca w połowie wysięgu (szkło powyżej 4 m, poliwęglan powyżej 4,5 m)")}
+  <span class="hint" data-hide="zad.podparcie">Zaznacza się samo, gdy wysięg przekroczy 4 m przy szkle lub 4,5 m przy poliwęglanie. Możesz je też dodać lub odznaczyć ręcznie.</span>
+  <div class="grid g3" data-show="zad.podparcie">
+    ${cnt("zad.podparcieSlupy","Słupy pod podparciem (szt.)")}
+    ${mm("zad.podparcieOdl","Odległość podparcia od ściany","puste = połowa wysięgu")}
+  </div>
   ${chk("zad.wypust","Zadaszenie z wypustem (dach wysunięty przed słupy)")}
   <div class="grid g3" data-show="zad.wypust">
     ${mm("zad.wypustMm","Długość wypustu","od lica słupów do końca dachu","W")}
@@ -608,6 +615,7 @@ function frSVG(path,c){
       if(/Lewa|Obie/.test(pk))ar(x+w*0.5,x+10); if(/Prawa|Obie/.test(pk))ar(x+w*0.5,x+w-10);}
     else if(/Drzwi/.test(t)){g+=`<rect class="fr-fix" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="fill:rgba(120,128,134,.35)"/><rect x="${x+w*0.18}" y="${top+8}" width="${w*0.64}" height="${h-10}" fill="none" style="stroke:var(--ink)" stroke-width="1.5"/>`;}
     else if(/Shutters/.test(t)){const k=Math.max(1,Math.min(10,num(p.shSkrzydla)||2)),sw=(w-4)/k;g+=`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:.55"/>`;for(let j=1;j<k;j++)g+=`<line x1="${x+2+sw*j}" y1="${top+2}" x2="${x+2+sw*j}" y2="${bot-2}" style="stroke:var(--ink)" stroke-width="1.5"/>`;for(let y=top+8;y<bot-4;y+=6)g+=`<line class="fr-zl" x1="${x+4}" y1="${y}" x2="${x+w-4}" y2="${y+2}"/>`}
+    else if(/Panel|Sunbreaker/.test(t))g+=lam2d(x,top,w,h,bot,p);
     else if(/ZIP/.test(t)){g+=`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;for(let y=top+10;y<bot;y+=8)g+=`<line class="fr-zl" x1="${x+2}" y1="${y}" x2="${x+w-2}" y2="${y}"/>`}
     else g+=`<rect class="fr-open" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`;
     g+=`<text class="fr-n" x="${x+w/2}" y="${top+(bot-top)/2+4}" text-anchor="middle">${i+1}</text>`;
@@ -652,9 +660,13 @@ function segSVG(g,t,x,w,top,bot,w0){const h=bot-top;
     const hx=w0.zawiasy==="Lewe"?x+w*0.78:x+w*0.24; g.push(`<circle cx="${hx}" cy="${top+h*0.55}" r="3" style="fill:var(--ink)"/>`);}
   else if(/Shutters/.test(t)){const k=Math.max(1,Math.min(10,num(w0.shSkrzydla)||2)),sw=(w-4)/k;g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:.55"/>`);for(let j=1;j<k;j++)g.push(`<line x1="${x+2+sw*j}" y1="${top+2}" x2="${x+2+sw*j}" y2="${bot-2}" style="stroke:var(--ink)" stroke-width="1.5"/>`);for(let y=top+8;y<bot-4;y+=6)g.push(`<line class="fr-zl" x1="${x+4}" y1="${y}" x2="${x+w-4}" y2="${y+2}"/>`)}
   else if(/ZIP/.test(t)){g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`);for(let y=top+10;y<bot;y+=8)g.push(`<line class="fr-zl" x1="${x+2}" y1="${y}" x2="${x+w-2}" y2="${y}"/>`)}
-  else if(/Panel/.test(t)){g.push(`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:.7"/>`)}
+  else if(/Panel|Sunbreaker/.test(t))g.push(lam2d(x,top,w,h,bot,w0));
   else g.push(`<rect class="fr-open" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}"/>`);
 }
+function lam2d(x,top,w,h,bot,o){o=o||{};let s=`<rect class="fr-zip" x="${x+2}" y="${top+2}" width="${w-4}" height="${h-4}" style="opacity:${/Sunbreaker/.test(o.typ||"")?.45:.7}"/>`;
+  if(o.uklad==="Pionowo")for(let xx=x+8;xx<x+w-4;xx+=7)s+=`<line class="fr-zl" x1="${xx}" y1="${top+3}" x2="${xx}" y2="${bot-3}"/>`;
+  else for(let y=top+8;y<bot-3;y+=7)s+=`<line class="fr-zl" x1="${x+3}" y1="${y}" x2="${x+w-3}" y2="${y}"/>`;
+  return s}
 function sideRender(){
   document.querySelectorAll("#viewForm [data-sidesvg]").forEach(box=>{const p=box.dataset.sidesvg, w=getP(cur,p)||{}, pre=box.dataset.pre, side=box.dataset.side;
     const parts=w.podzial&&Array.isArray(w.czesci)&&w.czesci.length?w.czesci:[w];
@@ -858,7 +870,13 @@ function showRules(root){
   root.querySelectorAll("[data-show-has]").forEach(el=>{const [k,re]=el.dataset.showHas.split("~");el.hidden=!new RegExp(re).test(getP(cur,k)||"")});
   root.querySelectorAll("[data-hide]").forEach(el=>{el.hidden=!!getP(cur,el.dataset.hide)});
 }
+const podpLimit=z=>/Szkło/.test((z||{}).pokrycie||"")?4000:/Poliw/i.test((z||{}).pokrycie||"")?4500:0;
+function podpAuto(){const z=cur.zad;if(!z)return;const L=podpLimit(z),B=num(z.wys);
+  const setEl=(k,v)=>{const el=$("#"+fid(k));if(!el||document.activeElement===el)return;if(el.type==="checkbox")el.checked=!!v;else el.value=v};
+  if(!z.podparcieRecznie&&L&&B){const need=B>L;if(!!z.podparcie!==need){z.podparcie=need;setEl("zad.podparcie",need);if(need)toast(`Wysięg ${fmt(B)} mm: dodano podparcie na środku (belka wzmacniająca).`)}}
+  if(z.podparcie&&!num(z.podparcieSlupy)&&!z.podparcieSlupyRecznie){z.podparcieSlupy=String(zadSlupy(z));setEl("zad.podparcieSlupy",z.podparcieSlupy)}}
 function refresh(){
+  if(cur.typ==="zadaszenie"&&cur.zad)podpAuto();
   if(cur.typ==="zadaszenie"&&cur.zad?.belka&&!cur.zad.slupyRecznie){const n=String(belkaSlupy(cur.zad.szer));if(cur.zad.slupy!==n){cur.zad.slupy=n;const sl=$("#"+fid("zad.slupy"));if(sl&&document.activeElement!==sl)sl.value=n}}
   frRender(); czRender(); showRules($("#viewForm")); sideRender(); if(cur.typ==="zadaszenie")renderRoofBar();
   if(cur.typ==="pergola")calcPerg(); else if(cur.typ==="zadaszenie")calcZad();
@@ -880,6 +898,8 @@ function calcZad(){
   if(A&&A>7000&&!num(z.slupy)&&!z.belka)warns.push("Szerokość powyżej 7 m: wpisz liczbę słupów.");
   if(z.wypust&&!num(z.wypustMm))warns.push("Zaznaczono wypust: wpisz jego długość (W).");
   if(z.wypust&&num(z.wypustMm)&&B&&num(z.wypustMm)>=B)warns.push("Wypust nie może być dłuższy niż cały wysięg B.");
+  {const L=podpLimit(z);if(L&&B&&B>L&&!z.podparcie)warns.push(`Wysięg ${fmt(B)} mm przy ${L===4000?"szkle (powyżej 4 m)":"poliwęglanie (powyżej 4,5 m)"}: potrzebne podparcie na środku.`);
+   if(!L&&B&&B>4000&&!z.podparcie)warns.push("Wysięg powyżej 4 m: wybierz pokrycie dachu. Przy szkle powyżej 4 m i poliwęglanie powyżej 4,5 m potrzebne jest podparcie na środku.");}
   if(z.belka&&A&&A>21000)warns.push("Belka wzmacniająca: powyżej 21 m skonsultuj konstrukcję z technikiem.");
   if(z.belka&&A&&num(z.slupy)&&num(z.slupy)<belkaSlupy(A))warns.push(`Z belką przy tej szerokości zalecane są ${belkaSlupy(A)} słupy z przodu (wpisano ${fmt(num(z.slupy))}).`);
   [["L","lewy"],["P","prawy"]].forEach(([k,n])=>{const e=z["wolno"+k];if(e?.on&&!num(e.dl))warns.push(`Element wolnostojący ${n}: wpisz, ile zadaszenie wystaje poza budynek.`)});
@@ -917,7 +937,8 @@ function sideText(w,s){
   if(w.parkowanie&&/przesuwne/.test(ty))t+=`, parkowanie: ${w.parkowanie.toLowerCase()} (od środka)`;
   if(w.maskownica&&/przesuwne/.test(ty))t+=`, z maskownicą`;
   if(w.material&&/^Ściana stała$/.test(ty))t+=` (${w.material})`;
-  if(/Panel/.test(ty)&&w.kolorPanelu)t+=`, kolor: ${/Inny/.test(w.kolorPanelu)?(w.kolorPaneluInny||w.kolorPanelu):w.kolorPanelu}`;
+  if(/Panel|Sunbreaker/.test(ty)&&w.uklad)t+=`, układ ${w.uklad.toLowerCase()}`;
+  if(/Panel|Sunbreaker/.test(ty)&&w.kolorPanelu)t+=`, kolor: ${/Inny/.test(w.kolorPanelu)?(w.kolorPaneluInny||w.kolorPanelu):w.kolorPanelu}`;
   if(/Shutters/.test(ty)){if(w.shRodzaj)t+=`, ${w.shRodzaj.toLowerCase()}`;if(num(w.shSkrzydla))t+=`, ilość skrzydeł: ${szt(w.shSkrzydla)}`;if(w.shLamele)t+=`, lamele ${w.shLamele.toLowerCase()}`;if(w.shParkowanie&&/Przesuwne|Składane/.test(w.shRodzaj||""))t+=`, parkowanie: ${w.shParkowanie.toLowerCase()} (od środka)`;if(w.kolorSh)t+=`, kolor: ${/Inny/.test(w.kolorSh)?(w.kolorShInny||w.kolorSh):w.kolorSh}`}
   if(/ZIP/.test(ty)&&w.strona)t+=`, silnik z ${w.strona==="Lewa"?"lewej":"prawej"} strony (od środka)`;
   if(/Drzwi/.test(ty)){if(w.zawiasy)t+=`, zawiasy ${w.zawiasy.toLowerCase()} (od środka)`;if(w.otwieranie)t+=`, otwierane ${w.otwieranie.toLowerCase()}`;if(w.kolorDrzwi)t+=`, kolor: ${w.kolorDrzwi}`}
@@ -970,7 +991,7 @@ function clientRows(r){
     if(RL.length>1)rows.push([roofName(x,ri).toUpperCase(),"","h"]);
     add("Produkt","Zadaszenie tarasu"+(z.nazwa?` – ${z.nazwa}`:"")+(z.mocowanie?` (${z.mocowanie.toLowerCase()})`:""));
     add("Wymiary",[z.szer,z.wys].every(num)?`${fmt(num(z.szer))} × ${fmt(num(z.wys))} mm (szerokość × wysięg)`:"");
-    add("Wysokości",(num(z.h1)||num(z.h2))?`przy ścianie ${mmTxt(z.h1)}, przy froncie ${mmTxt(z.h2)}`:"");
+    add("Wysokości",(num(z.h1)||num(z.h2))?`${z.mocowanie==="Wolnostojące"?"z tyłu":"przy ścianie"} ${mmTxt(z.h1)}, przy froncie ${mmTxt(z.h2)}`:"");
     add("Pokrycie dachu",z.pokrycie);
     add("Kolor konstrukcji",/Inny/.test(z.kolor||"")?(z.kolorInny||z.kolor):z.kolor);
     add("Ilość słupów przód",z.belka?`${szt(zadSlupy(z))} (belka wzmacniająca)`:(num(z.slupy)?szt(z.slupy):""));
@@ -978,6 +999,7 @@ function clientRows(r){
     add("Słupy",[(z.belka||num(z.slupy)||num(z.slupyTyl))?"11 × 11 cm":"",num(z.dlugoscSlupa)?`długość ${fmt(num(z.dlugoscSlupa))} mm`:""].filter(Boolean).join(", "));
     const tr=[["lewy",z.trojkatL],["prawy",z.trojkatP]].filter(x=>x[1]&&x[1].on).map(x=>`${x[0]}${x[1].mat?" – "+x[1].mat:""}`);
     add("Trójkąty pod dachem",tr.join(", "));
+    add("Podparcie na środku",z.podparcie?`belka wzmacniająca ${num(z.podparcieOdl)?fmt(num(z.podparcieOdl))+" mm od ściany":"w połowie wysięgu"}`+(num(z.podparcieSlupy)?`, słupy: ${szt(z.podparcieSlupy)}`:""):"");
     add("Wypust",z.wypust?`${num(z.wypustMm)?fmt(num(z.wypustMm))+" mm":"tak"} (dach wysunięty przed słupy)`+(num(z.h3)?`, wys. pod belką ${fmt(num(z.h3))} mm`:""):"");
     [["L","lewy"],["P","prawy"]].forEach(([k,n])=>{const e=z["wolno"+k];if(e?.on)add(`Element wolnostojący ${n}`,`wystaje ${mmTxt(e.dl)} poza budynek`+(e.slupy?`, ${e.slupy}`:""))});
     add("Montaż słupów",z.montazSlupow?(z.montazSlupow==="Profil U"?"w profil U":"na beton"):"");
@@ -1134,6 +1156,8 @@ function onField(e){
   setP(cur,el.dataset.k,v);
   if(el.dataset.k==="zad.slupy")cur.zad.slupyRecznie=!!String(v).trim();
   if(el.dataset.k==="zad.belka"&&!v)cur.zad.slupyRecznie=true;
+  if(el.dataset.k==="zad.podparcie")cur.zad.podparcieRecznie=true;
+  if(el.dataset.k==="zad.podparcieSlupy")cur.zad.podparcieSlupyRecznie=!!String(v).trim();
   dirty=true; saveDraft(); refresh();
 }
 
@@ -1142,6 +1166,7 @@ function colHex(k){const m=String(k||"").match(/(7016|9006|9010|8014)/);return m
 function fillFor(t){t=t||"";
   if(/Drzwi/.test(t))return {f:"rgba(96,104,110,.82)",lines:""};
   if(/Shutters/.test(t))return {f:"rgba(104,112,118,.86)",lines:"h"};
+  if(/Sunbreaker/.test(t))return {f:"rgba(96,104,110,.72)",lines:"h"};
   if(/Panel/.test(t))return {f:"rgba(120,128,134,.9)",lines:"h"};
   if(/ZIP/.test(t))return {f:"rgba(55,60,64,.62)",lines:"h"};
   if(/poliw/i.test(t))return {f:"rgba(236,238,240,.78)",lines:""};
@@ -1153,6 +1178,7 @@ function vizSVG(r){
   let A,B,H1,H2,col,demo=false;
   if(isP){const p=r.perg||{};A=num(p.szer);B=num(p.gl);H1=H2=num(p.wys);col=colHex(p.kolor)}
   else{const z=r.zad||{};A=num(z.szer);B=num(z.wys);H1=num(z.h1);H2=num(z.h2);col=colHex(z.kolor)}
+  if(!isP&&r.zad?.mocowanie==="Wolnostojące"&&H2&&!H1)H1=H2;
   if(!A||!B||!H1||!H2){demo=true;A=A||5000;B=B||3500;H1=H1||(isP?2500:2800);H2=H2||(isP?2500:2300)}
   const beamH=isP?250:(r.zad?.belka?320:200), roofT=isP?0:120;
   const wyp=(!isP&&r.zad?.wypust)?Math.min(num(r.zad.wypustMm)||0,B*0.6):0, postY=B-wyp, roofAt=y=>H1+(H2-H1)*y/B;
@@ -1166,7 +1192,7 @@ function vizSVG(r){
   const P=(x,y,z)=>{const [a,b]=pr(x,y,z);return (ox+a*k).toFixed(1)+","+(oy+b*k).toFixed(1)};
   const poly=(arr,f,st,sw=1,extra="")=>out.push(`<polygon points="${arr.map(q=>P(...q)).join(" ")}" fill="${f}" stroke="${st||"none"}" stroke-width="${sw}" ${extra}/>`);
   const line=(a,b,st,sw)=>out.push(`<line x1="${P(...a).split(",")[0]}" y1="${P(...a).split(",")[1]}" x2="${P(...b).split(",")[0]}" y2="${P(...b).split(",")[1]}" stroke="${st}" stroke-width="${sw}" stroke-linecap="round"/>`);
-  const panel=(corners,t,div)=>{const f=fillFor(t);if(!f)return;poly(corners,f.f,col,1.2);
+  const panel=(corners,t,div,uk)=>{let f=fillFor(t);if(f&&uk&&/Panel|Sunbreaker/.test(t||"")){f=Object.assign({},f,{lines:uk==="Pionowo"?"v":"h"});if(uk==="Pionowo")div=12}if(!f)return;poly(corners,f.f,col,1.2);
     const [a,b,c,d]=corners; // a-b bottom edge, d-c top edge
     if(f.lines==="v"){const n=Math.max(2,Math.min(10,div||3));for(let i=1;i<n;i++){const t2=i/n,lp=(u,v)=>u.map((q,j)=>q+(v[j]-q)*t2);line(lp(a,b),lp(d,c),"rgba(60,70,80,.55)",1)}}
     if(f.lines==="h"){for(let i=1;i<9;i++){const t2=i/9,lp=(u,v)=>u.map((q,j)=>q+(v[j]-q)*t2);line(lp(a,d),lp(b,c),"rgba(255,255,255,.25)",1)}}};
@@ -1180,14 +1206,14 @@ function vizSVG(r){
   const sideH=(x)=>isP?[[x,0,0],[x,B,0],[x,B,H1],[x,0,H1]]:((x===0?triL:triP)?[[x,0,0],[x,postY,0],[x,postY,fTop],[x,0,fTop]]:[[x,0,0],[x,postY,0],[x,postY,fTop],[x,0,H1-60]]);
   const tri=(x,mat)=>{const f=fillFor(mat||"Szkło");poly([[x,0,fTop],[x,postY,fTop],[x,postY,Math.max(fTop,roofAt(postY)-60)],[x,0,H1-60]],f?f.f:"rgba(165,200,226,.42)",col,1.2)};
   const sides=isP?r.pb||{}:r.zab||{}, zabOn=isP||(r.zab?.rodzaj&&r.zab.rodzaj!=="Bez zabudowy");
-  const sidePanel=(corners,w,rev)=>{const L=w.podzial&&Array.isArray(w.czesci)?w.czesci.filter(c=>c&&c.typ):[];if(!L.length){panel(corners,w.typ,num(w.skrzydla));return}
+  const sidePanel=(corners,w,rev)=>{const L=w.podzial&&Array.isArray(w.czesci)?w.czesci.filter(c=>c&&c.typ):[];if(!L.length){panel(corners,w.typ,num(w.skrzydla),w.uklad);return}
     const ws=L.map(c=>num(c.szer)||1), tot=ws.reduce((a,b)=>a+b,0); let acc=0; const [a,b,c,d]=corners, lp=(u,v,t)=>u.map((q,j)=>q+(v[j]-q)*t);
     const order=rev?L.map((_,i)=>L.length-1-i):L.map((_,i)=>i);
-    order.forEach(i=>{const t0=acc/tot,t1=(acc+ws[i])/tot;acc+=ws[i];panel([lp(a,b,t0),lp(a,b,t1),lp(d,c,t1),lp(d,c,t0)],L[i].typ,num(L[i].skrzydla))})};
+    order.forEach(i=>{const t0=acc/tot,t1=(acc+ws[i])/tot;acc+=ws[i];panel([lp(a,b,t0),lp(a,b,t1),lp(d,c,t1),lp(d,c,t0)],L[i].typ,num(L[i].skrzydla),L[i].uklad)})};
   // far side (right) + back for pergola
   if(zabOn&&sides.prawa?.on)sidePanel(sideH(A),sides.prawa,false);
   if(triP)tri(A,r.zad.trojkatP.mat);
-  if(isP&&sides.tyl?.on&&!wall)panel([[0,0,0],[A,0,0],[A,0,H1],[0,0,H1]],sides.tyl.typ,num(sides.tyl.skrzydla));
+  if(isP&&sides.tyl?.on&&!wall)panel([[0,0,0],[A,0,0],[A,0,H1],[0,0,H1]],sides.tyl.typ,num(sides.tyl.skrzydla),sides.tyl.uklad);
   // posts
   const post=(x,y,h)=>{const s=SLUP_MM;poly([[x,y,0],[x+s,y,0],[x+s,y,h],[x,y,h]],col,"rgba(0,0,0,.35)",1);poly([[x,y-s,0],[x,y,0],[x,y,h],[x,y-s,h]],col,"rgba(0,0,0,.35)",1,'opacity=".85"')};
   if(isP&&!wall){post(0,SLUP_MM,H1);post(A-SLUP_MM,SLUP_MM,H1)}
@@ -1195,6 +1221,14 @@ function vizSVG(r){
     if(wL){post(0,SLUP_MM,bh);if(/2/.test(r.zad.wolnoL.slupy||""))post(Math.max(SLUP_MM*2,wL-SLUP_MM),SLUP_MM,bh);poly([[0,SLUP_MM,bh-160],[wL,SLUP_MM,bh-160],[wL,SLUP_MM,bh],[0,SLUP_MM,bh]],col,"rgba(0,0,0,.35)",1)}
     if(wP){post(A-SLUP_MM,SLUP_MM,bh);if(/2/.test(r.zad.wolnoP.slupy||""))post(Math.min(A-SLUP_MM*3,A-wP),SLUP_MM,bh);poly([[A-wP,SLUP_MM,bh-160],[A,SLUP_MM,bh-160],[A,SLUP_MM,bh],[A-wP,SLUP_MM,bh]],col,"rgba(0,0,0,.35)",1)}
     if(wL)ex.push(`element wolnostojący lewy ${fmt(wL)} mm`); if(wP)ex.push(`element wolnostojący prawy ${fmt(wP)} mm`);}
+  if(!isP&&!wall){const nb=Math.max(2,num(r.zad?.slupyTyl)||zadSlupy(r.zad)),bh=H1-60;
+    for(let i=0;i<nb;i++)post(i*(A-SLUP_MM)/(nb-1),SLUP_MM,bh);
+    poly([[0,SLUP_MM,bh-200],[A,SLUP_MM,bh-200],[A,SLUP_MM,bh],[0,SLUP_MM,bh]],col,"rgba(0,0,0,.35)",1);
+    ex.push("wolnostojące")}
+  if(!isP&&r.zad?.podparcie){const z=r.zad,yy=Math.max(600,Math.min(postY-600,num(z.podparcieOdl)||postY/2)),n=Math.max(1,num(z.podparcieSlupy)||zadSlupy(z)),top=roofAt(yy)-40,bm=220;
+    for(let i=0;i<n;i++)post(n===1?A/2-SLUP_MM/2:i*(A-SLUP_MM)/(n-1),yy,top-bm);
+    poly([[0,yy,top-bm],[A,yy,top-bm],[A,yy,top],[0,yy,top]],col,"rgba(0,0,0,.35)",1);
+    ex.push("podparcie na środku")}
   // front posts & fields
   let xsPost=[0,A-SLUP_MM], fields=[];
   if(!isP){const fr=r.zab?.fr, n=Math.max(1,zadSlupy(r.zad)-1), pola=(fr&&Array.isArray(fr.pola)?fr.pola:[]).slice(0,n);
@@ -1205,7 +1239,7 @@ function vizSVG(r){
       xsPost=[0];let x=SLUP_MM;for(let i=0;i<n;i++){const w=known?ws[i]*(inner/ws.reduce((a,b)=>a+b,0)):inner/n;fields.push({x0:x,x1:x+w,p:pp[i]||{}});x+=w;xsPost.push(x);x+=SLUP_MM}}
     else{const f=sides.front;if(f?.on)fields.push({x0:SLUP_MM,x1:A-SLUP_MM,p:f})}}
   const fz=fTop, fy=isP?B:postY;
-  if(zabOn)fields.forEach(f=>{if(!f.p||!f.p.typ)return;panel([[f.x0,fy,0],[f.x1,fy,0],[f.x1,fy,fz],[f.x0,fy,fz]],f.p.typ,num(f.p.skrzydla))});
+  if(zabOn)fields.forEach(f=>{if(!f.p||!f.p.typ)return;panel([[f.x0,fy,0],[f.x1,fy,0],[f.x1,fy,fz],[f.x0,fy,fz]],f.p.typ,num(f.p.skrzydla),f.p.uklad)});
   xsPost.forEach(x=>post(x,fy,fz));
   if(!isP&&wyp)poly([[0,postY,fz],[A,postY,fz],[A,postY,roofAt(postY)],[0,postY,roofAt(postY)]],col,"rgba(0,0,0,.35)",1);
   // near side (left)
@@ -1250,7 +1284,7 @@ function vizSVG(r){
   const lab=(xyz,t,anch="middle")=>{const q=P(...xyz).split(",");out.push(`<text x="${q[0]}" y="${q[1]}" text-anchor="${anch}" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="#2F3438">${t}</text>`)};
   lab([A/2,B+450,0],`A ${fmt(A)} mm`);
   lab([-700,B*0.5,0],`B ${fmt(B)} mm`,"end");
-  if(isP)lab([A+250,B,H1/2],`H ${fmt(H1)}`,"start");else{lab([A+wyp*0.6+500,B,H2-150],`H2 ${fmt(H2)}`,"start");if(wall)lab([-120,0,H1],`H1 ${fmt(H1)}`,"end")}
+  if(isP)lab([A+250,B,H1/2],`H ${fmt(H1)}`,"start");else{lab([A+wyp*0.6+500,B,H2-150],`H2 ${fmt(H2)}`,"start");lab([-120,0,H1],wall?`H1 ${fmt(H1)}`:`H1 tył ${fmt(H1)}`,"end")}
   const kol=(isP?r.perg?.kolor:r.zad?.kolor)||"kolor nie wybrany";
   const cap=`${isP?"Pergola lamelowa":"Zadaszenie"} · ${kol}${ex.length?" · "+ex.join(", "):""}`;
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${Hh+40}" viewBox="0 0 ${W} ${Hh+40}" role="img" aria-label="Wizualizacja: ${esc(cap)}"><rect width="100%" height="100%" fill="#FFFFFF"/>${out.join("")}
